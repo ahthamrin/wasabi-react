@@ -6,10 +6,16 @@ import UserStore from '../stores/UserStore';
 import SlideActions from '../actions/SlideActions';
 import SlideStore from '../stores/SlideStore';
 import SlideShow from './SlideShow.jsx';
+import LocalVideo from './UserMediaLocal.jsx';
+
 
 export default class Student extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      user: {}
+    }
 
   }
   componentDidMount() {
@@ -41,6 +47,7 @@ export default class Student extends React.Component {
             onNext={this.handleNext}
             onLast={this.handleLast} />
         </AltContainer>
+        <LocalVideo user={this.state.user} recv={true}/>
       </div>
     );
   }

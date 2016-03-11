@@ -36,14 +36,23 @@ module.exports = (app, mydata, socketIO) => {
         };
         // console.log('connection',client.id,io);
         // pass a message to another id
+        client.on('class/img', function(msg) {
+            socketIO.to(socket.mydata.slideRoom)
+            .emit('class/img', msg);
+            mydata.db.insertOne({cmd: 'class/img', msg: msg, timestamp: (new Date())}, function() {
+            console.log('class/img');
+            })
+        })
+
         client.on('message', function (details) {
             if (!details) return;
 
-            var otherClient = io.to(details.to);
+            var otherClient = socketIO.to(details.to);
             if (!otherClient) return;
 
             details.from = client.id;
             otherClient.emit('message', details);
+            console.log('message', details);
         });
 
         client.on('shareScreen', function () {
@@ -105,7 +114,7 @@ module.exports = (app, mydata, socketIO) => {
                 name = uuid();
             }
             // check if exists
-            var room = io.nsps['/'].adapter.rooms[name];
+            var room = io.nsps['/rtc'].adapter.rooms[name];
             if (room && room.length) {
                 safeCb(cb)('taken');
             } else {
@@ -149,7 +158,7 @@ module.exports = (app, mydata, socketIO) => {
 
 
     function describeRoom(name) {
-        var adapter = io.nsps['/'].adapter;
+        var adapter = io.nsps['/rtc'].adapter;
         var clients = adapter.rooms[name] || {};
         var result = {
             clients: {}

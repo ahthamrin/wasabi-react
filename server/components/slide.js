@@ -64,6 +64,7 @@ module.exports = (app, mydata, socketIO) => {
       if (socket.mydata.slideRoom && socket.mydata.user.role !== 'lecturer') {
         // socket.emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNo: msg.slideNo, username: socket.mydata.user.username});
       }
+      mydata.db.insertOne({cmd: 'subSlide/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user})
     });
 
     socket.on('unsubSlide', function(msg) {
@@ -71,6 +72,8 @@ module.exports = (app, mydata, socketIO) => {
       socket.leave(socket.mydata.slideRoom);
       socket.mydata.slideRoom = null;
       socket.mydata.slideDeckId = null;
+
+      mydata.db.insertOne({cmd: 'subSlide/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user})
     });
     
     socket.on('pushLocalSlide', function(msg) {
@@ -79,6 +82,9 @@ module.exports = (app, mydata, socketIO) => {
 
         socketIO.to(socket.mydata.slideRoom)
         .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
+        mydata.db.insertOne({cmd: 'slideUpdate/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+          console.log(arguments);
+        });
       }
     });
 

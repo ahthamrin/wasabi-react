@@ -78,7 +78,7 @@ MongoClient.connect(url, function (err, db) {
 	if (err) {
 		console.log('mongodb err');
 	}
-	app.mydata.db = db;
+	app.mydata.db = db.collection('experiment');
 });
 
 var userHandler = require('./components/user.js');
