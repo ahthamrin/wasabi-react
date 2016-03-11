@@ -25,6 +25,12 @@ class SlideStore {
     this.slideNoLecturer = 0;
     this.slideNoLocal = 0;
     this.lecturer = null;
+
+    this.sender = null;
+    this.questionMsg = null;
+
+    this.notifs = 0;
+    this.alerts = 0;
   }
 
   emit({cmd,msg}) {
@@ -60,6 +66,17 @@ class SlideStore {
       var recvSlide = {slideNoLocal: slideNoLecturer, slideNoLecturer: slideNoLecturer, lecturer: lecturer};
       this.setState(recvSlide);
     });
+
+    SlideSource.on('AskQuestion', ({sender, questionMsg}) => {
+      console.log('AskQuestion', {sender, questionMsg});
+      this.setState({sender, questionMsg, notifs: ++this.notifs});
+    });
+
+    SlideSource.on('AlertTeacher', () => {
+      console.log('AlertTeacher', arguments);
+      this.setState({notifs: ++this.alerts});
+    });
+
   }
 
   unsubSlide(slideDeckId) {

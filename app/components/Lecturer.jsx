@@ -10,7 +10,13 @@ import LocalVideo from './UserMediaLocal.jsx';
 //THIS PART IS ADDED BY GROUP 2 FOR LECTURERNOTE FEATURE
 import LecturerNote from './LecturerNote.jsx';
 
-export default class Student extends React.Component {
+// GROUP 5
+import Question from './Questions/Question.jsx';
+import QuestionNotif from './Questions/QuestionNotif.jsx';
+import QuestionModal from './Questions/QuestionModal.jsx';
+
+
+export default class Lecturer extends React.Component {
   constructor(props) {
     super(props);
 
@@ -18,7 +24,17 @@ export default class Student extends React.Component {
       user: {},
       currentNoteIndex: 0,
       currentNoteValue: null,
-      noteText: []
+      noteText: [],
+      alerts: 0,
+      questionValue: "",
+      notifs: 2,
+      view: {
+        showModal: false
+      },
+      questions: [{ sender: "dave",
+                    questionMsg: "who?" },
+                  { sender: "bob",
+                    questionMsg: "what?" }]
 
     }
 
@@ -55,11 +71,34 @@ export default class Student extends React.Component {
     SlideStore.unlisten(this.changeSlideStore);
   }
   changeSlideStore = (state) => {
+    if (state.questionMsg) {
+      state.questions = [{sender:state.sender, questionMsg: state.questionMsg}].concat(this.state.questions);
+    }
+    console.log('change slide store', state);
     this.setState(state);
+    console.log(state, this.state);
   }
   render() {
+    var AlertNumber = this.state.alerts
+
     return (
       <div className="row">
+        {this.state.view.showModal ? 
+          <QuestionModal questions={this.state.questions} 
+                         handleHideModal={this.handleHideModal}
+                         questionInput={this.handleAnswerInput}
+                         clickQuestion={this.handleAnswer}/> : null}  
+
+        <button className="btn btn-danger">
+          <span className="glyphicon glyphicon-alert" aria-hidden="true"></span>
+          <span className="badge">{AlertNumber}</span>
+        </button>
+
+        <QuestionNotif 
+          handleShowModal={this.handleShowModal}
+          notifs={this.state.notifs}/>
+
+
         <AltContainer
           stores={{slides: SlideStore}}
         >
@@ -81,6 +120,37 @@ export default class Student extends React.Component {
         <LocalVideo user={this.state.user} recv={false}/>
       </div>
     );
+  }
+
+  //shows the modal for the questions
+  handleHideModal = (event) => {
+    this.setState({ view: {showModal: false} })
+  }
+
+  //hides the modal for the questions
+  handleShowModal = (event) => {
+    this.setState({ view: {showModal: true} })
+  }
+
+  //triggered when the value of the text area changes
+  handleAnswerInput = (event) => {
+    this.setState({ questionValue: event.target.value });
+  }
+
+  //pushes replies to questions
+  handleAnswer = (index) => {
+    console.log('send to student:' + this.state.questionValue)
+    
+    var questions = this.state.questions;
+    if (!questions[index].reply)
+      questions[index].reply = []
+    
+    var question = { sender: this.state.user.username,
+                     questionMsg: this.state.questionValue }
+
+    questions[index].reply.push(question)
+    SlideActions.emit({ cmd:'ReplyQuestion', msg: questions });
+    this.setState({ questions: questions });
   }
 
     // THIS METHOD IS ADDED BY GROUP 2 FOR LECTURERNOTE FEATURE

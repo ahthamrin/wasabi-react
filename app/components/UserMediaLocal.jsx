@@ -53,7 +53,7 @@ export default class UserMediaLocal extends React.Component {
           }
         }
       }
-
+/*
       this.simplewebrtc = new SimpleWebRTC({
         localVideo: null, // this.video,
         remoteVideo: null, // this.remoteVideo,
@@ -68,6 +68,7 @@ export default class UserMediaLocal extends React.Component {
         console.log('videoAdded', peer);
         this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
       })
+*/
 
     })
     .catch((error) => {
@@ -100,7 +101,7 @@ export default class UserMediaLocal extends React.Component {
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
     if (this.props.recv && (parseInt(timestamp*1000/150)*150 % 150 === 0)) {
-      SlideActions.emit({cmd:'class/img',msg:{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)}});
+      // SlideActions.emit({cmd:'class/img',msg:{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)}});
     }
 
     if (!this.video.ended && !this.video.paused) {

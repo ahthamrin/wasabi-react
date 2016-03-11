@@ -91,8 +91,37 @@ module.exports = (app, mydata, socketIO) => {
     socket.on('hi', function(msg) {
         socketIO.to(socket.mydata.slideRoom)
         .emit('hi', msg);
+         mydata.db.insertOne({cmd: 'slideUpdate/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+          console.log(arguments);
+        });
     })
-  });
+
+    socket.on('AskQuestion', function(msg) {
+      console.log('AskQuestion', msg);
+        socketIO.to(socket.mydata.slideRoom)
+        .emit('AskQuestion', msg);
+         mydata.db.insertOne({cmd: 'AskQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+          console.log(arguments);
+        });
+    })
+
+    socket.on('AlertTeacher', function(msg) {
+        socketIO.to(socket.mydata.slideRoom)
+        .emit('AlertTeacher', msg);
+         mydata.db.insertOne({cmd: 'AlertTeacher', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+          console.log(arguments);
+        });
+    })
+
+    socket.on('ReplyQuestion', function(msg) {
+        socketIO.to(socket.mydata.slideRoom)
+        .emit('ReplyQuestion', msg);
+         mydata.db.insertOne({cmd: 'ReplyQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+          console.log(arguments);
+        });
+    })
+    
+   });
 
 
 }

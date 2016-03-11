@@ -7,6 +7,8 @@ import SlideActions from '../actions/SlideActions';
 import SlideStore from '../stores/SlideStore';
 import SlideShow from './SlideShow.jsx';
 import LocalVideo from './UserMediaLocal.jsx';
+import Alert from './Alert.jsx';
+import Question from './Questions/Question.jsx';
 
 
 export default class Student extends React.Component {
@@ -14,7 +16,12 @@ export default class Student extends React.Component {
     super(props);
 
     this.state = {
-      user: {}
+      user: {},
+      lastAnswer: null, 
+      lastCorrect: false,
+      questionValue: '',
+      questions: [{ sender: '',
+                    questionMsg: '' }]
     }
 
   }
@@ -47,10 +54,59 @@ export default class Student extends React.Component {
             onNext={this.handleNext}
             onLast={this.handleLast} />
         </AltContainer>
+          <Alert clickAlert={this.handleAlertButton}/>
+          <Question 
+            questionInput={this.handleQuestionInput}
+            clickQuestion={this.handleQuestion}
+            questions={this.state.questions}
+            questionValue={this.questionValue}/>
         <LocalVideo user={this.state.user} recv={true}/>
       </div>
     );
   }
+
+  //triggered when you type something
+  handleQuestionInput = (event) => {
+    this.setState({ questionValue: event.target.value });
+  }
+
+//triggered when the send button is clicked
+  handleQuestion = (event) => {
+    console.log('send to teacher:' + this.state.questionValue)
+    console.log(this.state.user.username)
+
+    var questions = this.state.questions;
+    var question = { sender: this.state.user.username,
+                     questionMsg: this.state.questionValue }
+    questions.push(question)
+
+    this.setState({questions: questions });
+
+    SlideActions.emit({cmd:'AskQuestion', msg: question});
+  }
+
+  //triggered when the alert button is clicked
+  handleAlertButton = (event) => {
+    var user = { user: this.state.user.username }
+
+    SlideActions.emit({cmd:'AlertTeacher', msg: user});
+    console.log('alert teacher');
+  }
+
+  handleAnswer = (choice, index) => {
+    var answerCorrect = false
+    if(index === 2){
+      answerCorrect = true;
+    }
+
+    console.log('answer', choice, answerCorrect)
+
+    this.setState({ quizRetries: this.state.quizRetries + 1,
+                    lastAnswer: choice,
+                    lastCorrect: answerCorrect })
+
+  }
+
   handleFirst = (event) => {
     if (this.state.slideNoLocal > 0 ) {
       SlideActions.changeSlideLocal({slideNoLocal: 0});
