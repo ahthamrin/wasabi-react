@@ -28,6 +28,7 @@ export default class Student extends React.Component {
   }
   componentDidMount() {
     var userData = UserStore.getState();
+    var loggedInUser = userData.loggedInUser;
     this.setState({user: userData.loggedInUser});
 
     this.setState(SlideStore.getState())

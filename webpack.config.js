@@ -4,6 +4,7 @@ var webpack = require('webpack');
 var merge = require('webpack-merge');
 var Clean = require('clean-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var BowerWebpackPlugin = require("bower-webpack-plugin");
 
 var pkg = require('./package.json');
 
@@ -21,8 +22,7 @@ var common = {
   entry: ['bootstrap-loader', PATHS.app ],
   // entry: [ PATHS.app ],
   resolve: {
-    extensions: ['', '.js', '.jsx'],
-    root: [path.join(__dirname, 'app/src/bower_components')]
+    extensions: ['', '.js', '.jsx']
   },
   module: {
     loaders: [
@@ -42,8 +42,12 @@ var common = {
         test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
         loader: 'file'
       },
-      { test: /bootstrap-sass\/assets\/javascripts\//, loader: 'imports?jQuery=jquery' },
-      { test: /jquery-touchswipe\/jquery\.touchSwipe\.js$/, loader: 'imports?jQuery=jquery,$=jquery' }
+      { test: /bootstrap-sass\/assets\/javascripts\//, 
+        loader: 'imports?jQuery=jquery' 
+      },
+      { test: /jquery-touchswipe\/jquery\.touchSwipe\.js$/, 
+        loader: 'imports?jQuery=jquery,$=jquery' 
+      }
     ]
   },
   // postcss: [ autoprefixer ],
@@ -54,9 +58,13 @@ var common = {
       appMountId: 'app',
       inject: false
     }),
-    new webpack.ResolverPlugin(
-      new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('bower.json', ['main'])
-    ),
+    new BowerWebpackPlugin({
+      modulesDirectories: ["app/src/bower_components"],
+      manifestFiles:      "bower.json",
+      includes:           /.*/,
+      excludes:           [],
+      searchResolveModulesDirectories: false
+    }),
     new webpack.ProvidePlugin({
     $: "jquery",
     jQuery: "jquery",
@@ -97,7 +105,7 @@ if(TARGET === 'start' || !TARGET) {
     devServer: {
       historyApiFallback: true,
       hot: false,
-      inline: true,
+      inline: false,
       progress: true,
 
       // display only errors to reduce the amount of output

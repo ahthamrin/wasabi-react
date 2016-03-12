@@ -36,7 +36,7 @@ export default class UserMediaLocal extends React.Component {
       this.webRtc.addIceCandidate(msg.candidate);
     });
 
-    this.getUserMedia({ audio: true, video: { maxWidth: 320, maxHeight: 240 }})
+    this.getUserMedia({ audio: true, video: { width: 640, framerate: 15 }})
     .then((stream) => {
       console.log('stream', stream);
       this.video.src = window.URL.createObjectURL(stream);
@@ -77,13 +77,13 @@ export default class UserMediaLocal extends React.Component {
   canvasRender = (timestamp) => {
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
-    this.canvas.width = this.video.videoWidth/2;
-    this.canvas.height = this.video.videoHeight/2;
+    this.canvas.width = this.video.videoWidth/4;
+    this.canvas.height = this.video.videoHeight/4;
 
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
-    if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 1 )) {
-      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)});
+    if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 2 )) {
+      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.6)});
       this.canvasLastCaptureTimestamp = timestamp;
     }
 
@@ -94,16 +94,29 @@ export default class UserMediaLocal extends React.Component {
   connectWebRtc() {
     return new Promise((resolve, reject) => {
       var self = this;
-      this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate}, function(err) {
-        if (err)
-          console.log('error', err);
-        this.generateOffer(function(err, offerSdp){
+      if (this.props.user.role === 'lecturer')
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send'}, function(err) {
           if (err)
-            reject(err);
-          else
-            resolve(offerSdp);
+            console.log('error', err);
+          this.generateOffer(function(err, offerSdp){
+            if (err)
+              reject(err);
+            else
+              resolve(offerSdp);
+          });
         });
-      });
+      else
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerRecvonly({remoteVideo: this.remoteVideo, onicecandidate: this.onIceCandidate, mode: 'recv'}, function(err) {
+          if (err)
+            console.log('error', err);
+          this.generateOffer(function(err, offerSdp){
+            if (err)
+              reject(err);
+            else
+              resolve(offerSdp);
+          });
+        });
+
     })
   }
   onIceCandidate = (candidate) => {
@@ -118,7 +131,7 @@ export default class UserMediaLocal extends React.Component {
       server.rtcIO.emit('leaveClass');
     }
     catch(err) {
-      this.mediaStreamLocal.stop();
+      // this.mediaStreamLocal.stop();
     }
   }
   render() {
@@ -128,7 +141,7 @@ export default class UserMediaLocal extends React.Component {
           <div style={{display:'none'}}>
           <video style={{width: '240px'}}  controls muted ref="video"/>
           </div>
-          <div style={{width: '240px'}} ref="remoteVideo"/>
+          <video style={{width: '240px'}} ref="remoteVideo"/>
         </div>
       );
     // }

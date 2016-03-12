@@ -1,0 +1,26 @@
+{
+  "name": "wasabi_app",
+  "description": "Webpack demo app",
+  "main": "index.js",
+  "authors": [
+    "Achmad Husni Thamrin <ahthamrin@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "webpack",
+    "demo"
+  ],
+  "homepage": "https://github.com/ahthamrin/wasabi-react",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/src/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "kurento-utils": "^6.2.0"
+  }
+}

@@ -3,7 +3,7 @@ var kurento = require('kurento-client')
     , async = require('async')
     ;
 
-var wsUri = 'wss://lo.jaringan.info:8443/kurento';
+var wsUri = 'ws://lo.jaringan.info:8888/kurento';
 
 var kurentoClient = null;
 
@@ -48,8 +48,13 @@ module.exports = (app, mydata, socketIO) => {
             cb(rtcData[msg.classId].pipeline)
           else
             kc.create('MediaPipeline', function(err, pipeline) {
-              if (err)
+              if (err) {
+                try {
+                  rtcData[msg.classId].pipeline.release();
+                } catch(e) {}
+                delete rtcData[msg.classId].pipeline;
                 cb(err);
+              }
               rtcData[msg.classId].pipeline = pipeline;
               cb(null, pipeline);
             })
@@ -75,7 +80,7 @@ module.exports = (app, mydata, socketIO) => {
 
             ep.on('OnIceCandidate', function(event) {
               var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
-              socket.emit('iceCandidate', candidate);
+              socket.emit('iceCandidate', {candidate:candidate});
             });
 
             if (socket.mydata.user.role === 'lecturer') {
@@ -121,8 +126,6 @@ module.exports = (app, mydata, socketIO) => {
                 }
               })
             }
-          }
-
           })
         }
         ], function(err, sdpAnswer) {
