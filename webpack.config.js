@@ -95,9 +95,6 @@ if(TARGET === 'start' || !TARGET) {
       hot: true,
       inline: true,
       progress: true,
-      https: true,
-      key : path.join(__dirname,'server/https-key/lo.jaringan.info/privkey1.pem'),
-      cacert : path.join(__dirname,'server/https-key/lo.jaringan.info/cert1.pem'),
 
       // display only errors to reduce the amount of output
       stats: 'errors-only',
