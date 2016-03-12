@@ -189,6 +189,7 @@ module.exports = (app, mydata, socketIO) => {
               // console.log('faces',faces);
               if (faces && faces.length) {
                 msg.faces = faces;
+                msg.jpg = msg.jpg.length;
                 mydata.db.insertOne({cmd: 'face-count', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
               }
               callback(err, tmpFilename);
