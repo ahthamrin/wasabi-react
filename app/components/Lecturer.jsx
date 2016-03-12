@@ -1,6 +1,7 @@
 import React from 'react';
 import { hashHistory, Link } from 'react-router';
 import AltContainer from 'alt-container';
+import server from '../libs/serverurls';
 import UserActions from '../actions/UserActions';
 import UserStore from '../stores/UserStore';
 import SlideActions from '../actions/SlideActions';
@@ -11,10 +12,11 @@ import LocalVideo from './UserMediaLocal.jsx';
 import LecturerNote from './LecturerNote.jsx';
 
 // GROUP 5
-import Question from './Questions/Question.jsx';
-import QuestionNotif from './Questions/QuestionNotif.jsx';
-import QuestionModal from './Questions/QuestionModal.jsx';
+import QuestionLecturer from './Questions/QuestionLecturer.jsx';
+import QuestionStore from '../stores/QuestionStore';
+import QuestionActions from '../actions/QuestionActions';
 
+import Quiz from './Quiz.jsx';
 
 export default class Lecturer extends React.Component {
   constructor(props) {
@@ -34,9 +36,11 @@ export default class Lecturer extends React.Component {
       questions: [{ sender: "dave",
                     questionMsg: "who?" },
                   { sender: "bob",
-                    questionMsg: "what?" }]
+                    questionMsg: "what?" }],
 
-    }
+      quizStat: false, question: null, username: '', answer: '', answStat: false,
+      answerList: []
+      }
 
   }
   componentDidMount() {
@@ -47,6 +51,8 @@ export default class Lecturer extends React.Component {
     SlideStore.listen(this.changeSlideStore);
 
     SlideActions.subSlide({slideDeckId:this.props.params.deckId, user: loggedInUser});
+    QuestionActions.sub({slideDeckId:this.props.params.deckId, user: loggedInUser})
+
     console.log('componentDidMount', this.state, SlideStore.getState());
 
         var noteText = [
@@ -68,6 +74,7 @@ export default class Lecturer extends React.Component {
   }
   componentWillUnmount() {
     SlideActions.unsubSlide(this.props.params.deckId);
+    QuestionActions.unsub();
     SlideStore.unlisten(this.changeSlideStore);
   }
   changeSlideStore = (state) => {
@@ -79,24 +86,27 @@ export default class Lecturer extends React.Component {
     console.log(state, this.state);
   }
   render() {
-    var AlertNumber = this.state.alerts
+
+    var showQuestion;
+  //    var showReset;
+    if(this.state.question){
+      showQuestion = "Question :";
+  //    showReset = quizButtonReset;
+    }
+    else{
+      showQuestion = "";
+  //      showReset = "";
+    }
 
     return (
       <div className="row">
-        {this.state.view.showModal ? 
-          <QuestionModal questions={this.state.questions} 
-                         handleHideModal={this.handleHideModal}
-                         questionInput={this.handleAnswerInput}
-                         clickQuestion={this.handleAnswer}/> : null}  
+        <AltContainer
+          stores={{stores:QuestionStore}}
 
-        <button className="btn btn-danger">
-          <span className="glyphicon glyphicon-alert" aria-hidden="true"></span>
-          <span className="badge">{AlertNumber}</span>
-        </button>
-
-        <QuestionNotif 
-          handleShowModal={this.handleShowModal}
-          notifs={this.state.notifs}/>
+          inject={{user:this.state.user}}
+        >
+          <QuestionLecturer />
+        </AltContainer>
 
 
         <AltContainer
@@ -115,43 +125,37 @@ export default class Lecturer extends React.Component {
                     currentNoteValue={this.state.currentNoteValue}
                     saveLectureNote={this.handleSaveLectureNoteClick}
                     changeLectureNote={this.handleChangeLectureNoteChange}/>
-                <LocalVideo />
+                    
+      <Quiz quizButton
+      quizHandleQuestion = {this.handleQuestion}
+      text = {showQuestion}
+      questionShow = {this.state.question}
+//      answerShow = {username: {this.state.username}, answer: {this.state.answer}}
+//      {showReset}
+      quizButtonReset
+      quizResetQuestion = {this.resetQuestion}/>
+
 
         <LocalVideo user={this.state.user} recv={false}/>
       </div>
     );
   }
+        // {this.state.view.showModal ? 
 
-  //shows the modal for the questions
-  handleHideModal = (event) => {
-    this.setState({ view: {showModal: false} })
-  }
+        //   <QuestionModal questions={this.state.questions} 
+        //                  handleHideModal={this.handleHideModal}
+        //                  questionInput={this.handleAnswerInput}
+        //                  clickQuestion={this.handleAnswer}/> : null}  
 
-  //hides the modal for the questions
-  handleShowModal = (event) => {
-    this.setState({ view: {showModal: true} })
-  }
+        // <button className="btn btn-danger">
+        //   <span className="glyphicon glyphicon-alert" aria-hidden="true"></span>
+        //   <span className="badge">{AlertNumber}</span>
+        // </button>
 
-  //triggered when the value of the text area changes
-  handleAnswerInput = (event) => {
-    this.setState({ questionValue: event.target.value });
-  }
+        // <QuestionNotif 
+        //   handleShowModal={this.handleShowModal}
+        //   notifs={this.state.notifs}/>
 
-  //pushes replies to questions
-  handleAnswer = (index) => {
-    console.log('send to student:' + this.state.questionValue)
-    
-    var questions = this.state.questions;
-    if (!questions[index].reply)
-      questions[index].reply = []
-    
-    var question = { sender: this.state.user.username,
-                     questionMsg: this.state.questionValue }
-
-    questions[index].reply.push(question)
-    SlideActions.emit({ cmd:'ReplyQuestion', msg: questions });
-    this.setState({ questions: questions });
-  }
 
     // THIS METHOD IS ADDED BY GROUP 2 FOR LECTURERNOTE FEATURE
     handleLectureNoteChange = (index) => {
@@ -212,4 +216,26 @@ export default class Lecturer extends React.Component {
       console.log('handleLast', this.state);
     }
   }
+
+//================================================================================>> This is Changed
+  handleQuestion = (event) => {
+    var questionTxt = prompt("Input the Question."); 
+    if (questionTxt !== null){
+      this.setState(
+      {quizStat: true, question: questionTxt}
+      );
+      server.slideIO.emit('pushQuizQuestion', {question: questionTxt});
+//      this.setState({quizStat: false});
+//      SlideStore.send('pushQuizQuestion',{question: this.state.question});
+    }
+      console.log(questionTxt);
+  }
+  resetQuestion = (event) => {
+    this.setState(
+    {quizStat: false, question: null}
+    );
+  }
+//================================================================================>
+
+
 }

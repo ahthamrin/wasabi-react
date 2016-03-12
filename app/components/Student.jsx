@@ -1,6 +1,7 @@
 import React from 'react';
 import { hashHistory, Link } from 'react-router';
 import AltContainer from 'alt-container';
+import server from '../libs/serverurls';
 import UserActions from '../actions/UserActions';
 import UserStore from '../stores/UserStore';
 import SlideActions from '../actions/SlideActions';
@@ -9,6 +10,8 @@ import SlideShow from './SlideShow.jsx';
 import LocalVideo from './UserMediaLocal.jsx';
 import Alert from './Alert.jsx';
 import Question from './Questions/Question.jsx';
+import QuestionStore from '../stores/QuestionStore';
+import QuestionActions from '../actions/QuestionActions';
 
 
 export default class Student extends React.Component {
@@ -17,11 +20,9 @@ export default class Student extends React.Component {
 
     this.state = {
       user: {},
-      lastAnswer: null, 
-      lastCorrect: false,
-      questionValue: '',
-      questions: [{ sender: '',
-                    questionMsg: '' }]
+    quizStat: false,
+    question: null,
+    answer: null
     }
 
   }
@@ -33,13 +34,28 @@ export default class Student extends React.Component {
     SlideStore.listen(this.changeSlideStore);
 
     SlideActions.subSlide({slideDeckId:this.props.params.deckId, user: loggedInUser});
+    QuestionActions.sub({slideDeckId:this.props.params.deckId, user: loggedInUser})
+
     console.log('componentDidMount', this.state, SlideStore.getState());
   }
   componentWillUnmount() {
     SlideActions.unsubSlide(this.props.params.deckId);
+    QuestionActions.unsub();
     SlideStore.unlisten(this.changeSlideStore);
   }
   changeSlideStore = (state) => {
+    console.log('changeSlideStore');
+//================================================================================>> This is Changed
+  if (state.quizStat === true) {
+    //var question = {this.state.question}
+    var quizAnswer = prompt(state.question);
+        var quizQA = {question: state.question, answer: quizAnswer}
+        this.setState(quizQA);
+      server.slideIO.emit('pushQuizAnswer', {username: this.state.user.username, answer: quizAnswer});
+    // this.setState({quizStat: false});
+    }
+//================================================================================>
+
     this.setState(state);
   }
   render() {
@@ -55,11 +71,16 @@ export default class Student extends React.Component {
             onLast={this.handleLast} />
         </AltContainer>
           <Alert clickAlert={this.handleAlertButton}/>
-          <Question 
-            questionInput={this.handleQuestionInput}
-            clickQuestion={this.handleQuestion}
-            questions={this.state.questions}
-            questionValue={this.questionValue}/>
+        <AltContainer
+          stores={{stores:QuestionStore}}
+
+          inject={{
+            user: this.state.user
+          }}
+        >
+          <Question
+          />
+        </AltContainer>
         <LocalVideo user={this.state.user} recv={true}/>
       </div>
     );
@@ -67,14 +88,11 @@ export default class Student extends React.Component {
 
   //triggered when you type something
   handleQuestionInput = (event) => {
-    this.setState({ questionValue: event.target.value });
+    QuestionActions.input({ questionValue: event.target.value });
   }
 
 //triggered when the send button is clicked
   handleQuestion = (event) => {
-    console.log('send to teacher:' + this.state.questionValue)
-    console.log(this.state.user.username)
-
     var questions = this.state.questions;
     var question = { sender: this.state.user.username,
                      questionMsg: this.state.questionValue }
@@ -82,29 +100,15 @@ export default class Student extends React.Component {
 
     this.setState({questions: questions });
 
-    SlideActions.emit({cmd:'AskQuestion', msg: question});
+    server.slideIO.emit('AskQuestion', question);
   }
 
   //triggered when the alert button is clicked
   handleAlertButton = (event) => {
     var user = { user: this.state.user.username }
 
-    SlideActions.emit({cmd:'AlertTeacher', msg: user});
+    server.slideIO.emit('AlertTeacher', user);
     console.log('alert teacher');
-  }
-
-  handleAnswer = (choice, index) => {
-    var answerCorrect = false
-    if(index === 2){
-      answerCorrect = true;
-    }
-
-    console.log('answer', choice, answerCorrect)
-
-    this.setState({ quizRetries: this.state.quizRetries + 1,
-                    lastAnswer: choice,
-                    lastCorrect: answerCorrect })
-
   }
 
   handleFirst = (event) => {

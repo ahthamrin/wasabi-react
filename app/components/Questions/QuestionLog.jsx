@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 
 export default class QuestionLog extends React.Component {
 	render() {
+	console.log('QuestionLog', this.props);
 		var questions = this.props.questions;
 		var x;
 		if(questions[0] && questions[0].reply){
@@ -11,7 +12,6 @@ export default class QuestionLog extends React.Component {
 			}
 		}
 
-		console.log(questions)
 		return(
 			<div>
 	      { questions.map(

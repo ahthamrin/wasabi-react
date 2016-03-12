@@ -1,17 +1,7 @@
 import uuid from 'node-uuid';
 import alt from '../libs/alt';
 import UserActions from '../actions/UserActions';
-import io from 'socket.io-client';
-
-var UserSource = io.connect('wss://lo.jaringan.info:3000/user',
-  {transports: [
-    'polling',
-    'websocket', 
-    'xhr-polling', 
-    'jsonp-polling', 
-    'flashsocket', 
-    'htmlfile'
-  ]});
+import server from '../libs/serverurls';
 
 class UserStore {
   constructor() {
@@ -22,12 +12,12 @@ class UserStore {
   }
 
   send(cmd,msg) {
-    UserSource.emit(cmd,msg);
+    server.userIO.emit(cmd,msg);
   }
 
   fetch(cmd) {
     return new Promise((resolve, reject) => {
-      UserSource.once(cmd, (msg) => {
+      server.userIO.once(cmd, (msg) => {
         // console.log('UserStore fetch', cmd, msg);
         resolve(msg);
       });

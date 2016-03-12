@@ -23,6 +23,7 @@ export default class SlideShow extends React.Component {
   }
   render() {
     // var slideUrl = null; //this.state.slideDeckData[state.slideIdLecturer].url;
+    console.log('slideshow', this.props);
     var slideUrl = null;
     try {
       slideUrl = this.props.slides.slideDeckData[this.props.slides.slideNoLocal].url;
@@ -30,9 +31,9 @@ export default class SlideShow extends React.Component {
     catch (e) {}
     console.log('SlideShow', slideUrl);
     return (
-      <div className="row">
-        <div className="row" ref="slideImg"><img src={slideUrl} className="slide-show" /></div>
-        <div className="row">
+      <div>
+        <div ref="slideImg" onClick={this.props.onSlideClick}><img src={slideUrl} className="slide-show" /></div>
+        <div>
           <div className="btn-group btn-group-sm" role="group">
             <button type="button" className="btn btn-default" onClick={this.props.onFirst}>
               <span className="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>

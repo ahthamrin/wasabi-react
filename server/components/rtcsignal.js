@@ -93,7 +93,7 @@ module.exports = (app, mydata, socketIO) => {
             safeCb(cb)(null, describeRoom(name));
             client.join(name);
             client.room = name;
-            console.log('client join', client.id, client.room);
+            // console.log('client join', client.id, client.room);
         }
 
         // we don't want to pass "leave" directly because the
@@ -170,8 +170,8 @@ module.exports = (app, mydata, socketIO) => {
             }
             catch(e) {}
         });
-        console.log('describe',io.nsps['/'].adapter.rooms);
-        console.log('describe rtc',io.nsps['/rtc'].adapter.rooms);
+        // console.log('describe',io.nsps['/'].adapter.rooms);
+        // console.log('describe rtc',io.nsps['/rtc'].adapter.rooms);
         return result;
     }
 

@@ -24,10 +24,10 @@ export default class App extends React.Component {
 				<div className="container-fluid">
 					<div className="row">
 						<span className="strong">WASABI app</span>
-							{ClassLink}
-							{DashboardLink}
-							<Link className="nav" role="button" to="/about">About</Link>
-							<a href="#" type="nav" className="nav" onClick={this.logout} >Logout</a>
+						<span className="strong">{ClassLink}</span>
+						<span className="strong">{DashboardLink}</span>
+						<span className="strong"><Link className="nav" role="button" to="/about">About</Link></span>
+						<span className="strong"><a href="#" type="nav" className="nav" onClick={this.logout} >Logout</a></span>
 					</div>
 							{this.props.children}
 				</div>

@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import rtc from '../libs/rtc';
+import server from '../libs/serverurls';
 import { hashHistory, Link } from 'react-router';
 import io from 'socket.io-client';
 import SimpleWebRTC from 'simplewebrtc';
-import SlideActions from '../actions/SlideActions';
 
 var RTCSource = io.connect('wss://lo.jaringan.info:3000/rtc',
   {transports: [
@@ -33,6 +33,8 @@ export default class UserMediaLocal extends React.Component {
     this.video = ReactDOM.findDOMNode(this.refs.video);
     this.remoteVideo = ReactDOM.findDOMNode(this.refs.remoteVideo);
 
+    this.canvasLastCaptureTimestamp = 0;
+
     this.getUserMedia()
     .then((stream) => {
       this.video.src = window.URL.createObjectURL(stream);
@@ -53,7 +55,7 @@ export default class UserMediaLocal extends React.Component {
           }
         }
       }
-/*
+
       this.simplewebrtc = new SimpleWebRTC({
         localVideo: null, // this.video,
         remoteVideo: null, // this.remoteVideo,
@@ -68,7 +70,6 @@ export default class UserMediaLocal extends React.Component {
         console.log('videoAdded', peer);
         this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
       })
-*/
 
     })
     .catch((error) => {
@@ -95,13 +96,14 @@ export default class UserMediaLocal extends React.Component {
   canvasRender = (timestamp) => {
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
-    this.canvas.width = this.video.videoWidth;
-    this.canvas.height = this.video.videoHeight;
+    this.canvas.width = this.video.videoWidth/4;
+    this.canvas.height = this.video.videoHeight/4;
 
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
-    if (this.props.recv && (parseInt(timestamp*1000/150)*150 % 150 === 0)) {
-      // SlideActions.emit({cmd:'class/img',msg:{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)}});
+    if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 1 )) {
+      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)});
+      this.canvasLastCaptureTimestamp = timestamp;
     }
 
     if (!this.video.ended && !this.video.paused) {
@@ -121,7 +123,9 @@ export default class UserMediaLocal extends React.Component {
       return (
         <div className="row">
           <canvas ref="canvas"/>
-          <video style={{display:'none'}} ref="video"/>
+          <div style={{display:'none'}}>
+          <video  ref="video"/>
+          </div>
           <video ref="remoteVideo"/>
         </div>
       );

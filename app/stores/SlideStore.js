@@ -1,19 +1,7 @@
 import uuid from 'node-uuid';
 import alt from '../libs/alt';
 import SlideActions from '../actions/SlideActions';
-import io from 'socket.io-client';
-
-var SlideSource = io.connect('wss://lo.jaringan.info:3000/slide',
-  {transports: [
-    'websocket', 
-    'polling',
-    'xhr-polling', 
-    'jsonp-polling', 
-    'flashsocket', 
-    'htmlfile'
-  ]});
-
-var SlideSourceAjax = 'https://lo.jaringan.info:3000/slides/';
+import server from '../libs/serverurls';
 
 class SlideStore {
   constructor() {
@@ -34,17 +22,17 @@ class SlideStore {
   }
 
   emit({cmd,msg}) {
-    SlideSource.emit(cmd,msg);
+    server.slideIO.emit(cmd,msg);
   }
 
 
   send(cmd,msg) {
-    SlideSource.emit(cmd,msg);
+    server.slideIO.emit(cmd,msg);
   }
 
   fetch(cmd) {
     return new Promise((resolve, reject) => {
-      SlideSource.once(cmd, (msg) => {
+      server.slideIO.once(cmd, (msg) => {
         console.log('SlideStore fetch', cmd, msg);
         resolve(msg);
       });
@@ -52,7 +40,7 @@ class SlideStore {
   }
 
   subSlide({slideDeckId, user}) {
-    this.send('subSlide',{slideDeckId, user});
+    server.slideIO.emit('subSlide',{slideDeckId, user});
     this.setState({slideDeckId});
     console.log('subSlide', this.slideDeckId);
 
@@ -61,44 +49,45 @@ class SlideStore {
     }
 
     var slideUpdateId = 'slideUpdate/'+slideDeckId;
-    SlideSource.on(slideUpdateId, ({slideNoLecturer, lecturer}) => {
+    server.slideIO.on(slideUpdateId, ({slideNoLecturer, lecturer}) => {
       console.log('slideUpdate', slideUpdateId, {slideNoLecturer, lecturer});
       var recvSlide = {slideNoLocal: slideNoLecturer, slideNoLecturer: slideNoLecturer, lecturer: lecturer};
       this.setState(recvSlide);
     });
 
-    SlideSource.on('AskQuestion', ({sender, questionMsg}) => {
-      console.log('AskQuestion', {sender, questionMsg});
-      this.setState({sender, questionMsg, notifs: ++this.notifs});
-    });
+//================================================================================>> This is Changed
+  server.slideIO.on('pushQuizQuestion', ({question}) => {
+    var quiz = {quizStat: true, question: question}
+    this.setState(quiz);
+  });
+   server.slideIO.on('pushQuizAnswer', ({username, answer}) => {
+    var quizAnswer = {answStat: true, username: username, answer: answer}
+    this.setState(quizAnswer);
+  });
+//================================================================================>
 
-    SlideSource.on('AlertTeacher', () => {
-      console.log('AlertTeacher', arguments);
-      this.setState({notifs: ++this.alerts});
-    });
 
   }
 
   unsubSlide(slideDeckId) {
-    this.send('unsubSlide',{slideDeckId});
+    server.slideIO.emit('unsubSlide',{slideDeckId});
     this.setState({slideDeckId: -1});
 
-    var slideUpdateId = 'slideUpdate/'+slideDeckId;
-    SlideSource.removeAllListeners(slideUpdateId);
+    server.slideIO.removeAllListeners();
   }
 
   changeSlideLocal({slideNoLocal}) {
     this.setState({slideNoLocal});
     // console.log('changeSlideLocal', {slideNoLocal}, this.state);
-    this.send('pushLocalSlide',{slideDeckId:this.slideDeckId, slideNoLocal:slideNoLocal});
+    server.slideIO.emit('pushLocalSlide',{slideDeckId:this.slideDeckId, slideNoLocal:slideNoLocal});
   }
 
   fetchSlideDeck(slideDeckId) {
-    $.getJSON(SlideSourceAjax+slideDeckId)
+    $.getJSON(server.slidesUrl+slideDeckId)
     .done((data) => {
       var modData = data.slideDeckData.map((d) => {
-        d.url = SlideSourceAjax+this.slideDeckId+'/'+d.url;
-        d.urlThumb = SlideSourceAjax+this.slideDeckId+'/'+d.urlThumb;
+        d.url = server.slidesUrl+this.slideDeckId+'/'+d.url;
+        d.urlThumb = server.slidesUrl+this.slideDeckId+'/'+d.urlThumb;
         return d;
       });
       data.slideDeckData = modData;
