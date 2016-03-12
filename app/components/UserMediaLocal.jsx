@@ -7,17 +7,6 @@ import { hashHistory, Link } from 'react-router';
 import io from 'socket.io-client';
 import SimpleWebRTC from 'simplewebrtc';
 
-var RTCSource = io.connect('wss://lo.jaringan.info:3000/rtc',
-  {transports: [
-    'websocket', 
-    'polling',
-    'xhr-polling', 
-    'jsonp-polling', 
-    'flashsocket', 
-    'htmlfile'
-  ]});
-
-
 export default class UserMediaLocal extends React.Component {
   constructor(props) {
     super(props);
@@ -26,6 +15,7 @@ export default class UserMediaLocal extends React.Component {
   componentDidMount() {
     var container = ReactDOM.findDOMNode(this);
 
+    io.rtcIO.emit('user',this.props.user);
 
     this.canvas = ReactDOM.findDOMNode(this.refs.canvas);
     this.canvasCtx = this.canvas.getContext('2d');
@@ -46,7 +36,7 @@ export default class UserMediaLocal extends React.Component {
       var rtcOptions = {
         localVideoEl: this.video,
         remoteVideosEl: this.remoteVideo,
-        connection: RTCSource,
+        connection: server.rtcIO,
         autoRequestMedia: true,
         media: { audio: true, video: { maxWidth: 320, maxHeight: 240 }}
       }

@@ -34,6 +34,11 @@ module.exports = (app, mydata, socketIO) => {
             video: true,
             audio: false
         };
+
+        client.on('user', function(msg) {
+            client.resources.user = msg;
+            console.log('user', client.resources);
+        });
         // console.log('connection',client.id,io);
         // pass a message to another id
         client.on('class/img', function(msg) {
