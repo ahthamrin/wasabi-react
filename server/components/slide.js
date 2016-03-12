@@ -135,8 +135,6 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('pushQuizQuestion', msg);
          mydata.db.insertOne({cmd: 'ReplyQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                  if (err)
-          console.log(arguments);
         });
 //    }
     })
@@ -147,7 +145,7 @@ module.exports = (app, mydata, socketIO) => {
          mydata.db.insertOne({cmd: 'ReplyQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
         //           if (err)
         //   console.log(arguments);
-        // });
+        });
 //    }
     })
 //================================================================================>
