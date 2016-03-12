@@ -46,7 +46,7 @@ export default class UserMediaLocal extends React.Component {
 
       this.connectWebRtc()
       .then((sdpOffer) => {
-        server.rtcIO.emit('joinClass', {user:this.props.user.username, classId: this.props.classId, sdpOffer:sdpOffer});
+        server.rtcIO.emit('joinClass', {user:this.props.user, classId: this.props.classId, sdpOffer:sdpOffer});
       })
       .catch((error) => {
         console.log('connectWebRtc', error)
@@ -94,7 +94,7 @@ export default class UserMediaLocal extends React.Component {
   connectWebRtc() {
     return new Promise((resolve, reject) => {
       var self = this;
-      this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({localVideo: video, onicecandidate: this.onIceCandidate}, function(err) {
+      this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate}, function(err) {
         if (err)
           console.log('error', err);
         this.generateOffer(function(err, offerSdp){

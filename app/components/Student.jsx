@@ -27,8 +27,8 @@ export default class Student extends React.Component {
 
   }
   componentDidMount() {
-    var loggedInUser = UserStore.getState().loggedInUser;
-    this.setState({user: loggedInUser});
+    var userData = UserStore.getState();
+    this.setState({user: userData.loggedInUser});
 
     this.setState(SlideStore.getState())
     SlideStore.listen(this.changeSlideStore);
@@ -81,7 +81,7 @@ export default class Student extends React.Component {
           <Question
           />
         </AltContainer>
-        <LocalVideo user={this.state.user} recv={true}/>
+        <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={true}/>
       </div>
     );
   }

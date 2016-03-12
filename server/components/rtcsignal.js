@@ -12,7 +12,7 @@ function getKurentoClient(callback) {
         return callback(null, kurentoClient);
     }
 
-    kurento(argv.ws_uri, function(error, _kurentoClient) {
+    kurento(wsUri, function(error, _kurentoClient) {
         if (error) {
             console.log("Could not find media server at address " + argv.ws_uri);
             return callback("Could not find media server at address" + argv.ws_uri
@@ -61,6 +61,13 @@ module.exports = (app, mydata, socketIO) => {
 
             socket.mydata.endPoint = ep;
 
+            if (socket.mydata.user.role === 'lecturer') {
+              rtcData[msg.classId].sender = ep;
+            }
+            else {
+
+            }
+
             while (socket.mydata.iceCandidates.length) {
               var candidate = socket.mydata.iceCandidates.shift();
               ep.addIceCandidate(candidate);
@@ -71,23 +78,55 @@ module.exports = (app, mydata, socketIO) => {
               socket.emit('iceCandidate', candidate);
             });
 
-            ep.gatherCandidates(function(err) {
-              if (err) {
-                stop(socket);
-                cb(err);
-              }
-            })
+            if (socket.mydata.user.role === 'lecturer') {
+              ep.processOffer(msg.sdpOffer, function(err, sdpAnswer) {
+                if (err) {
+                  stop(socket);
+                  cb(err);
+                }
+                cb(null, sdpAnswer);
+              });
+              ep.gatherCandidates(function(err) {
+                if (err) {
+                  stop(socket);
+                  cb(err);
+                }
+              });
+            }
+            else {
+              ep.processOffer(msg.sdpOffer, function(err, sdpAnswer) {
+                if (err) {
+                  stop(socket);
+                  cb(err);
+                }
 
-            ep.processOffer(msg.sdpOffer, function(err, sdpAnswer) {
-              if (err) {
-                stop(socket);
-                cb(err);
-              }
-              cb(null, sdpAnswer);
-            })
+                if (rtcData[msg.classId].sender) {
+                  rtcData[msg.classId].sender.connect(ep, function(err) {
+                    if (err) {
+                      stop(socket);
+                      cb(err);
+                    }
+                    cb(null, sdpAnswer);
+                    ep.gatherCandidates(function(err) {
+                      if (err) {
+                        stop(socket);
+                        cb(err);
+                      }
+                    });
+                  });
+                }
+                else {
+                  stop(socket);
+                  cb(err);
+                }
+              })
+            }
+          }
+
           })
         }
         ], function(err, sdpAnswer) {
+          console.log('kurento',err,sdpAnswer);
           var resMsg = {};
           if (err) {
             resMsg.status = 'rejected';
@@ -102,8 +141,9 @@ module.exports = (app, mydata, socketIO) => {
       }); // joinClass
 
       socket.on('onIceCandidate', function(msg) {
+        var candidate = kurento.register.complexTypes.IceCandidate(msg.candidate);
         if (socket.mydata.endPoint) {
-          socket.mydata.endPoint.addIceCandidate(msg.candidate);
+          socket.mydata.endPoint.addIceCandidate(candidate);
         }
         else {
           socket.mydata.iceCandidates.push(candidate);

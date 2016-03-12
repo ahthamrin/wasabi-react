@@ -23,7 +23,7 @@ export default class Lecturer extends React.Component {
     super(props);
 
     this.state = {
-      user: {},
+      user: null,
       currentNoteIndex: 0,
       currentNoteValue: null,
       noteText: [],
@@ -44,8 +44,8 @@ export default class Lecturer extends React.Component {
 
   }
   componentDidMount() {
-    var loggedInUser = UserStore.getState().loggedInUser;
-    this.setState({user: loggedInUser});
+    var userData = UserStore.getState();
+    this.setState({user: userData.loggedInUser});
 
     this.setState(SlideStore.getState())
     SlideStore.listen(this.changeSlideStore);
