@@ -88,8 +88,7 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
         mydata.db.insertOne({cmd: 'slideUpdate/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                  if (err)
-          console.log(arguments);
+          // console.log(arguments);
         });
       }
     });
@@ -109,8 +108,6 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('AskQuestion', msg);
          mydata.db.insertOne({cmd: 'AskQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                  if (err)
-          console.log(arguments);
         });
     })
 
@@ -118,8 +115,8 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('AlertTeacher', msg);
          mydata.db.insertOne({cmd: 'AlertTeacher', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                   if (err)
-         console.log(arguments);
+         //           if (err)
+         // console.log(arguments);
         });
     })
 
@@ -127,8 +124,8 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('ReplyQuestion', msg);
          mydata.db.insertOne({cmd: 'ReplyQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                  if (err)
-          console.log(arguments);
+          //         if (err)
+          // console.log(arguments);
         });
     })
 
@@ -148,9 +145,9 @@ module.exports = (app, mydata, socketIO) => {
         socketIO.to(socket.mydata.slideRoom)
         .emit('pushQuizAnswer', msg);
          mydata.db.insertOne({cmd: 'ReplyQuestion', msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
-                  if (err)
-          console.log(arguments);
-        });
+        //           if (err)
+        //   console.log(arguments);
+        // });
 //    }
     })
 //================================================================================>
