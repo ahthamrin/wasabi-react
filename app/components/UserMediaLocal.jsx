@@ -38,8 +38,8 @@ export default class UserMediaLocal extends React.Component {
     this.getUserMedia({ audio: true, video: { maxWidth: 320, maxHeight: 240 }})
     .then((stream) => {
       console.log('stream', stream);
-      // this.video.src = window.URL.createObjectURL(stream);
-      // this.video.muted = true;
+      this.video.src = window.URL.createObjectURL(stream);
+      this.video.muted = true;
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
 
