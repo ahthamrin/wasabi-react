@@ -66,6 +66,7 @@ export default class UserMediaLocal extends React.Component {
       })
       this.simplewebrtc.on('videoAdded', (video, peer) => {
         console.log('videoAdded', peer.stream);
+        video.width = 320;
         // this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
         // this.remoteVideo.muted = true;
 
