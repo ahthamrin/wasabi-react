@@ -47,7 +47,8 @@ export default class UserMediaLocal extends React.Component {
         localVideoEl: this.video,
         remoteVideosEl: this.remoteVideo,
         connection: RTCSource,
-        autoRequestMedia: true
+        autoRequestMedia: true,
+        media: { audio: true, video: { maxWidth: 320, maxHeight: 240 }}
       }
       if (this.props.recv === false) {
         rtcOptions.receiveMedia = {
