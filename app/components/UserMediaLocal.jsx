@@ -35,24 +35,25 @@ export default class UserMediaLocal extends React.Component {
 
     this.canvasLastCaptureTimestamp = 0;
 
-    this.getUserMedia({ audio: true, video: { width: 320, height: 240 }})
+    this.getUserMedia({ audio: true, video: { maxWidth: 320, maxHeight: 240 }})
     .then((stream) => {
-      this.video.src = window.URL.createObjectURL(stream);
-      this.video.muted = true;
+      console.log('stream', stream);
+      // this.video.src = window.URL.createObjectURL(stream);
+      // this.video.muted = true;
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
 
       var rtcOptions = {
-        localVideo: null, // this.video,
-        remoteVideo: null, // this.remoteVideo,
+        localVideoEl: this.video,
+        remoteVideosEl: this.remoteVideo,
         connection: RTCSource,
         autoRequestMedia: true
       }
       if (this.props.recv === false) {
         rtcOptions.receiveMedia = {
-          mandatory: {
-              OfferToReceiveAudio: false,
-              OfferToReceiveVideo: false
+          receiveMedia: {
+              offerToReceiveAudio: false,
+              offerToReceiveVideo: false
           }
         }
       }
@@ -63,9 +64,9 @@ export default class UserMediaLocal extends React.Component {
         console.log('createdPeer', peer);
       })
       this.simplewebrtc.on('videoAdded', (video, peer) => {
-        console.log('videoAdded', peer);
-        this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
-        this.remoteVideo.muted = true;
+        console.log('videoAdded', peer.stream);
+        // this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
+        // this.remoteVideo.muted = true;
 
         console.log('video', this.video, this.remoteVideo);
       })
@@ -126,7 +127,7 @@ export default class UserMediaLocal extends React.Component {
           <div style={{display:'block'}}>
           <video controls muted ref="video"/>
           </div>
-          <video controls muted ref="remoteVideo"/>
+          <div ref="remoteVideo"/>
         </div>
       );
     // }
