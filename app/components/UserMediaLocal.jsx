@@ -25,6 +25,17 @@ export default class UserMediaLocal extends React.Component {
 
     this.canvasLastCaptureTimestamp = 0;
 
+    server.rtcIO.on('joinRes', (msg) => {
+      console.log('joinRes', msg);
+      if (msg.sdpAnswer) {
+        this.webRtc.processAnswer(msg.sdpAnswer);
+      }
+    });
+    server.rtcIO.on('iceCandidate', (msg) => {
+      console.log('iceCandidate', msg.candidate);
+      this.webRtc.addIceCandidate(msg.candidate);
+    });
+
     this.getUserMedia({ audio: true, video: { maxWidth: 320, maxHeight: 240 }})
     .then((stream) => {
       console.log('stream', stream);
@@ -33,6 +44,13 @@ export default class UserMediaLocal extends React.Component {
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
 
+      this.connectWebRtc()
+      .then((sdpOffer) => {
+        server.rtcIO.emit('joinClass', {user:this.props.user.username, classId: this.props.classId, sdpOffer:sdpOffer});
+      })
+      .catch((error) => {
+        console.log('connectWebRtc', error)
+      })
     })
     .catch((error) => {
       console.log('userMedia',error);
@@ -73,10 +91,31 @@ export default class UserMediaLocal extends React.Component {
       window.requestAnimationFrame(this.canvasRender);
     }
   }
+  connectWebRtc() {
+    return new Promise((resolve, reject) => {
+      var self = this;
+      this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({localVideo: video, onicecandidate: this.onIceCandidate}, function(err) {
+        if (err)
+          console.log('error', err);
+        this.generateOffer(function(err, offerSdp){
+          if (err)
+            reject(err);
+          else
+            resolve(offerSdp);
+        });
+      });
+    })
+  }
+  onIceCandidate = (candidate) => {
+    console.log('local candidate', candidate);
+    server.rtcIO.emit('onIceCandidate', {candidate:candidate})
+  }
   componentWillUnmount() {
     this.video.pause();
     try {
       this.mediaStreamLocal.getTracks().forEach((track) => { track.stop()});
+      this.webRtc.dispose();
+      server.rtcIO.emit('leaveClass');
     }
     catch(err) {
       this.mediaStreamLocal.stop();

@@ -97,6 +97,7 @@ module.exports = (app, mydata, socketIO) => {
             resMsg.status = 'accepted';
             resMsg.sdpAnswer = sdpAnswer;
           }
+          socket.emit('joinRes', resMsg);
         });
       }); // joinClass
 
@@ -129,7 +130,7 @@ function stop(socket) {
     socket.mydata.ep.release();
   }
   catch(e) {
-    
+
   }
 }
 

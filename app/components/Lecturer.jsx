@@ -136,7 +136,7 @@ export default class Lecturer extends React.Component {
       quizResetQuestion = {this.resetQuestion}/>
 
 
-        <LocalVideo user={this.state.user} recv={false}/>
+        <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={false}/>
       </div>
     );
   }
