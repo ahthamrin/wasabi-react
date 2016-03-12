@@ -35,9 +35,10 @@ export default class UserMediaLocal extends React.Component {
 
     this.canvasLastCaptureTimestamp = 0;
 
-    this.getUserMedia()
+    this.getUserMedia({ audio: true, video: { width: 320, height: 240 })
     .then((stream) => {
       this.video.src = window.URL.createObjectURL(stream);
+      this.video.muted = true;
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
 
@@ -97,8 +98,8 @@ export default class UserMediaLocal extends React.Component {
   canvasRender = (timestamp) => {
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
-    this.canvas.width = this.video.videoWidth/4;
-    this.canvas.height = this.video.videoHeight/4;
+    this.canvas.width = this.video.videoWidth/2;
+    this.canvas.height = this.video.videoHeight/2;
 
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
@@ -127,7 +128,7 @@ export default class UserMediaLocal extends React.Component {
           <div style={{display:'none'}}>
           <video muted ref="video"/>
           </div>
-          <video ref="remoteVideo"/>
+          <video muted ref="remoteVideo"/>
         </div>
       );
     // }
