@@ -87,9 +87,9 @@ module.exports = (app, mydata, socketIO) => {
 
         socketIO.to(socket.mydata.slideRoom)
         .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
-        });
       }
         mydata.db.insertOne({cmd: 'slideUpdate/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user}, function() {
+        });
           // console.log(arguments);
     });
 
