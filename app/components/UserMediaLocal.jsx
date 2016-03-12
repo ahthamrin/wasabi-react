@@ -91,7 +91,7 @@ export default class UserMediaLocal extends React.Component {
   }
   handlePlayUserMedia = (event) => {
     this.video.play()
-    this.video.muted = true
+    this.video.muted = true 
     window.requestAnimationFrame(this.canvasRender);
   }
   canvasRender = (timestamp) => {
