@@ -43,6 +43,7 @@
     "array.prototype.findindex": "^1.0.0",
     "jquery": "^2.2.1",
     "jquery-touchswipe": "^1.6.15",
+    "kurento-utils": "^6.2.0",
     "node-uuid": "^1.4.3",
     "react": "^0.14.0",
     "react-addons-pure-render-mixin": "^0.14.7",
@@ -50,6 +51,7 @@
     "react-dom": "^0.14.0",
     "react-router": "^2.0.0",
     "simplewebrtc": "^2.1.1",
-    "socket.io-client": "^1.4.5"
+    "socket.io-client": "^1.4.5",
+    "uuid": "^2.0.1"
   }
 }

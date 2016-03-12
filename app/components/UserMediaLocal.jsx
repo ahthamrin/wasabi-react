@@ -5,7 +5,7 @@ import rtc from '../libs/rtc';
 import server from '../libs/serverurls';
 import { hashHistory, Link } from 'react-router';
 import io from 'socket.io-client';
-import SimpleWebRTC from 'simplewebrtc';
+import kurento from 'kurento-utils';
 
 export default class UserMediaLocal extends React.Component {
   constructor(props) {
@@ -20,7 +20,7 @@ export default class UserMediaLocal extends React.Component {
     this.canvas = ReactDOM.findDOMNode(this.refs.canvas);
     this.canvasCtx = this.canvas.getContext('2d');
 
-    this.video = ReactDOM.findDOMNode(this.refs.video);
+    this.video = ReactDOM.findDOMNode(this.refs.video); 
     this.remoteVideo = ReactDOM.findDOMNode(this.refs.remoteVideo);
 
     this.canvasLastCaptureTimestamp = 0;
@@ -32,36 +32,6 @@ export default class UserMediaLocal extends React.Component {
       this.video.muted = true;
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
-
-      var rtcOptions = {
-        localVideoEl: this.video,
-        remoteVideosEl: this.remoteVideo,
-        connection: server.rtcIO,
-        autoRequestMedia: true,
-        media: { audio: true, video: { maxWidth: 320, maxHeight: 240 }}
-      }
-      if (this.props.recv === false) {
-        rtcOptions.receiveMedia = {
-          receiveMedia: {
-              offerToReceiveAudio: false,
-              offerToReceiveVideo: false
-          }
-        }
-      }
-
-      this.simplewebrtc = new SimpleWebRTC(rtcOptions);
-      this.simplewebrtc.joinRoom('100');
-      this.simplewebrtc.on('createdPeer', (peer) => {
-        console.log('createdPeer', peer);
-      })
-      this.simplewebrtc.on('videoAdded', (video, peer) => {
-        console.log('videoAdded', peer.stream);
-        video.width = 320;
-        // this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
-        // this.remoteVideo.muted = true;
-
-        console.log('video', this.video, this.remoteVideo);
-      })
 
     })
     .catch((error) => {

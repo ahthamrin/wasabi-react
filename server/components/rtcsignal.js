@@ -1,190 +1,137 @@
-var
-    // socketIO = require('socket.io'),
-    uuid = require('node-uuid'),
-    crypto = require('crypto');
+var kurento = require('kurento-client')
+    , uuid = require('node-uuid')
+    , async = require('async')
+    ;
 
-var config = {
-    "isDev": true,
-    "stunservers" : [
-        {"url": "stun:stun.l.google.com:19302"}
-    ],
-    "turnservers" : [
-        /*
-        { "url": "turn:your.turn.server.here",
-          "secret": "turnserversharedsecret"
-          "expiry": 86400 }
-          */
-    ]
-};
+var wsUri = 'wss://lo.jaringan.info:8443/kurento';
 
+var kurentoClient = null;
 
-// module.exports = function (io, config) {
+function getKurentoClient(callback) {
+    if (kurentoClient !== null) {
+        return callback(null, kurentoClient);
+    }
+
+    kurento(argv.ws_uri, function(error, _kurentoClient) {
+        if (error) {
+            console.log("Could not find media server at address " + argv.ws_uri);
+            return callback("Could not find media server at address" + argv.ws_uri
+                    + ". Exiting with error " + error);
+        }
+
+        kurentoClient = _kurentoClient;
+        callback(null, kurentoClient);
+    });
+}
+
 module.exports = (app, mydata, socketIO) => {
 
-    io = mydata.io;
+  io = mydata.io;
+  var rtcData = mydata.rtcdata = {}
 
-    if (config.logLevel) {
-        // https://github.com/Automattic/socket.io/wiki/Configuring-Socket.IO
-        io.set('log level', config.logLevel);
-    }
+  socketIO.on('connection', function (socket) {
+    socket.mydata = {};
 
-    socketIO.on('connection', function (client) {
-        client.resources = {
-            screen: false,
-            video: true,
-            audio: false
-        };
+    socket.on('joinClass', function(msg) {
+      socket.mydata.user = msg.user;
+      socket.mydata.classId = msg.classId;
+      socket.mydata.iceCandidates = [];
 
-        client.on('user', function(msg) {
-            client.resources.user = msg;
-            console.log('user', client.resources);
-        });
-        // console.log('connection',client.id,io);
-        // pass a message to another id
-        client.on('class/img', function(msg) {
-            socketIO.to(socket.mydata.slideRoom)
-            .emit('class/img', msg);
-            mydata.db.insertOne({cmd: 'class/img', msg: msg, timestamp: (new Date())}, function() {
-            console.log('class/img');
+      rtcData[msg.classId] = rtcData[msg.classId] || {};
+
+      async.waterfall([
+        function(cb) {
+          getKurentoClient(cb);
+        },
+        function(kc, cb) { //media pipeline
+          if (rtcData[msg.classId].pipeline)
+            cb(rtcData[msg.classId].pipeline)
+          else
+            kc.create('MediaPipeline', function(err, pipeline) {
+              if (err)
+                cb(err);
+              rtcData[msg.classId].pipeline = pipeline;
+              cb(null, pipeline);
             })
-        })
+        },
+        function(pipeline, cb) { // media element
+          pipeline.create('WebRtcEndpoint', function(err, ep) {
+            if (err)
+              cb(err);
 
-        client.on('message', function (details) {
-            if (!details) return;
+            socket.mydata.endPoint = ep;
 
-            var otherClient = socketIO.to(details.to);
-            if (!otherClient) return;
-
-            details.from = client.id;
-            otherClient.emit('message', details);
-            console.log('message', details);
-        });
-
-        client.on('shareScreen', function () {
-            client.resources.screen = true;
-        });
-
-        client.on('unshareScreen', function (type) {
-            client.resources.screen = false;
-            removeFeed('screen');
-        });
-
-        client.on('join', join);
-
-        function removeFeed(type) {
-            if (client.room) {
-                io.sockets.in(client.room).emit('remove', {
-                    id: client.id,
-                    type: type
-                });
-                if (!type) {
-                    client.leave(client.room);
-                    client.room = undefined;
-                }
+            while (socket.mydata.iceCandidates.length) {
+              var candidate = socket.mydata.iceCandidates.shift();
+              ep.addIceCandidate(candidate);
             }
-        }
 
-        function join(name, cb) {
-            // sanity check
-            if (typeof name !== 'string') return;
-            // check if maximum number of clients reached
-            if (config.rooms && config.rooms.maxClients > 0 &&
-                clientsInRoom(name) >= config.rooms.maxClients) {
-                safeCb(cb)('full');
-                return;
-            }
-            // leave any existing rooms
-            removeFeed();
-            safeCb(cb)(null, describeRoom(name));
-            client.join(name);
-            client.room = name;
-            // console.log('client join', client.id, client.room);
-        }
-
-        // we don't want to pass "leave" directly because the
-        // event type string of "socket end" gets passed too.
-        client.on('disconnect', function () {
-            removeFeed();
-        });
-        client.on('leave', function () {
-            removeFeed();
-        });
-
-        client.on('create', function (name, cb) {
-            if (arguments.length == 2) {
-                cb = (typeof cb == 'function') ? cb : function () {};
-                name = name || uuid();
-            } else {
-                cb = name;
-                name = uuid();
-            }
-            // check if exists
-            var room = io.nsps['/rtc'].adapter.rooms[name];
-            if (room && room.length) {
-                safeCb(cb)('taken');
-            } else {
-                join(name);
-                safeCb(cb)(null, name);
-            }
-        });
-
-        // support for logging full webrtc traces to stdout
-        // useful for large-scale error monitoring
-        client.on('trace', function (data) {
-            console.log('trace', JSON.stringify(
-            [data.type, data.session, data.prefix, data.peer, data.time, data.value]
-            ));
-        });
-
-
-        // tell client about stun and turn servers and generate nonces
-        client.emit('stunservers', config.stunservers || []);
-
-        // create shared secret nonces for TURN authentication
-        // the process is described in draft-uberti-behave-turn-rest
-        var credentials = [];
-        // allow selectively vending turn credentials based on origin.
-        var origin = client.handshake.headers.origin;
-        if (!config.turnorigins || config.turnorigins.indexOf(origin) !== -1) {
-            config.turnservers.forEach(function (server) {
-                var hmac = crypto.createHmac('sha1', server.secret);
-                // default to 86400 seconds timeout unless specified
-                var username = Math.floor(new Date().getTime() / 1000) + (server.expiry || 86400) + "";
-                hmac.update(username);
-                credentials.push({
-                    username: username,
-                    credential: hmac.digest('base64'),
-                    urls: server.urls || server.url
-                });
+            ep.on('OnIceCandidate', function(event) {
+              var candidate = kurento.register.complexTypes.IceCandidate(event.candidate);
+              socket.emit('iceCandidate', candidate);
             });
+
+            ep.gatherCandidates(function(err) {
+              if (err) {
+                stop(socket);
+                cb(err);
+              }
+            })
+
+            ep.processOffer(msg.sdpOffer, function(err, sdpAnswer) {
+              if (err) {
+                stop(socket);
+                cb(err);
+              }
+              cb(null, sdpAnswer);
+            })
+          })
         }
-        client.emit('turnservers', credentials);
-    });
-
-
-    function describeRoom(name) {
-        var adapter = io.nsps['/rtc'].adapter;
-        var clients = adapter.rooms[name] || {};
-        var result = {
-            clients: {}
-        };
-        if ('sockets' in clients)
-        Object.keys(clients.sockets).forEach(function (id) {
-            try {
-            result.clients[id] = adapter.nsp.connected[id].resources;
-            }
-            catch(e) {}
+        ], function(err, sdpAnswer) {
+          var resMsg = {};
+          if (err) {
+            resMsg.status = 'rejected';
+            resMsg.error =  err;
+          }
+          else {
+            resMsg.status = 'accepted';
+            resMsg.sdpAnswer = sdpAnswer;
+          }
         });
-        // console.log('describe',io.nsps['/'].adapter.rooms);
-        // console.log('describe rtc',io.nsps['/rtc'].adapter.rooms);
-        return result;
-    }
+      }); // joinClass
 
-    function clientsInRoom(name) {
-        return io.sockets.clients(name).length;
-    }
+      socket.on('onIceCandidate', function(msg) {
+        if (socket.mydata.endPoint) {
+          socket.mydata.endPoint.addIceCandidate(msg.candidate);
+        }
+        else {
+          socket.mydata.iceCandidates.push(candidate);
+        }
+      });
+      
+      socket.on('leaveClass', function() {
+        stop(socket);
+      });
 
+      socket.on('disconnect', function() {
+        stop(socket);
+      })
+      
+      socket.on('message', function(msg) {
+
+      });
+
+    });
 };
+
+function stop(socket) {
+  try {
+    socket.mydata.ep.release();
+  }
+  catch(e) {
+    
+  }
+}
 
 function safeCb(cb) {
     if (typeof cb === 'function') {

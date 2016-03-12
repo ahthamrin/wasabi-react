@@ -13,6 +13,7 @@
     "express-session": "^1.13.0",
     "jade": "^1.11.0",
     "kerberos": "0.0.19",
+    "kurento-client": "^6.4.0",
     "lodash": "*",
     "method-override": "^2.3.5",
     "mongodb": "^2.1.7",

@@ -21,7 +21,8 @@ var common = {
   entry: ['bootstrap-loader', PATHS.app ],
   // entry: [ PATHS.app ],
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx'],
+    root: [path.join(__dirname, 'app/src/bower_components')]
   },
   module: {
     loaders: [
@@ -53,6 +54,9 @@ var common = {
       appMountId: 'app',
       inject: false
     }),
+    new webpack.ResolverPlugin(
+      new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('bower.json', ['main'])
+    ),
     new webpack.ProvidePlugin({
     $: "jquery",
     jQuery: "jquery",
