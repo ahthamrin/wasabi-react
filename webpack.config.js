@@ -92,7 +92,7 @@ if(TARGET === 'start' || !TARGET) {
     devtool: 'eval-source-map',
     devServer: {
       historyApiFallback: true,
-      hot: true,
+      hot: false,
       inline: true,
       progress: true,
 
