@@ -35,7 +35,7 @@ export default class UserMediaLocal extends React.Component {
 
     this.canvasLastCaptureTimestamp = 0;
 
-    this.getUserMedia({ audio: true, video: { width: 320, height: 240 })
+    this.getUserMedia({ audio: true, video: { width: 320, height: 240 }})
     .then((stream) => {
       this.video.src = window.URL.createObjectURL(stream);
       this.video.muted = true;
