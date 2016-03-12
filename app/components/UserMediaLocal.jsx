@@ -57,12 +57,7 @@ export default class UserMediaLocal extends React.Component {
         }
       }
 
-      this.simplewebrtc = new SimpleWebRTC({
-        localVideo: null, // this.video,
-        remoteVideo: null, // this.remoteVideo,
-        connection: RTCSource,
-        autoRequestMedia: true
-        });
+      this.simplewebrtc = new SimpleWebRTC(rtcOptions);
       this.simplewebrtc.joinRoom('100');
       this.simplewebrtc.on('createdPeer', (peer) => {
         console.log('createdPeer', peer);
@@ -70,6 +65,9 @@ export default class UserMediaLocal extends React.Component {
       this.simplewebrtc.on('videoAdded', (video, peer) => {
         console.log('videoAdded', peer);
         this.remoteVideo.src = window.URL.createObjectURL(peer.stream);
+        this.remoteVideo.muted = true;
+
+        console.log('video', this.video, this.remoteVideo);
       })
 
     })
