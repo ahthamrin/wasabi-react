@@ -650,8 +650,8 @@ module.exports = (app, mydata, socketIO) => {
                 socketIO.to(socket.mydata.lecturerSocket)
                 .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
               
-              mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
-              console.log('force error', msg.jpg.length)
+              // mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
+              // console.log('force error', msg.jpg.length)
               // callback(1); // force error
               // return;
 
@@ -691,7 +691,7 @@ module.exports = (app, mydata, socketIO) => {
                // callback(1);
                // return;
            im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
-              console.log('faces',err, faces, msg);
+              console.log('faces',err, faces);
               if (faces && faces.length) {
                 msg.faces = faces;
                 msg.jpg = msg.jpg.length;
