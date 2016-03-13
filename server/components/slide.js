@@ -651,6 +651,7 @@ module.exports = (app, mydata, socketIO) => {
                 .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
               
               mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
+              console.log('force error', msg.jpg.length)
               callback(1); // force error
 
               var tmpFilename;
