@@ -653,6 +653,7 @@ module.exports = (app, mydata, socketIO) => {
               mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
               console.log('force error', msg.jpg.length)
               callback(1); // force error
+              return;
 
               var tmpFilename;
               try {
@@ -675,7 +676,7 @@ module.exports = (app, mydata, socketIO) => {
             }
           },
           function readImage(tmpFilename, callback) {
-              console.log('readImage',tmpFilename);
+              // console.log('readImage',tmpFilename);
             cv.readImage(tmpFilename, function(err, im) {
               if (err)
                 callback(err,tmpFilename);

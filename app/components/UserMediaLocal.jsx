@@ -36,9 +36,9 @@ export default class UserMediaLocal extends React.Component {
       this.webRtc.addIceCandidate(msg.candidate);
     });
 
-    var mediaConstraints = { audio: true, video: { width: 240, framerate: 15 }};
+    var mediaConstraints = { audio: true, video: { maxWidth: 240, framerate: 15 }};
     if (this.user.role === 'lecturer')
-      mediaConstraints = { audio: true, video: { width: 640, framerate: 30 }};
+      mediaConstraints = { audio: true, video: { maxWidth: 640, framerate: 30 }};
     this.getUserMedia(mediaConstraints)
     .then((stream) => {
       console.log('stream', stream);
