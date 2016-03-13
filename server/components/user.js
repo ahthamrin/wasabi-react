@@ -61,6 +61,8 @@ module.exports = (app, mydata, socketIO) => {
           loggedInUsers[thisUser.username] = thisUser;
       }
       socketIO.emit('login', _.pick(thisUser, ['username', 'role', 'error']));
+      mydata.db.insertOne({cmd: 'login', user, timestamp: (new Date())});
+
       console.log('login', user);
     });
 
