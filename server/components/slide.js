@@ -643,7 +643,7 @@ module.exports = (app, mydata, socketIO) => {
         try {
         async.waterfall([
           function writeFile(callback) {
-            if (msg.jpg.length) {
+            if (msg.jpg && msg.jpg.length) {
               // console.log(msg);
               // var tmpFilename = '/tmp/'+msg.user.username+msg.jpg.length+'.jpg';
               if (socket.mydata.lecturerSocket)
@@ -667,11 +667,14 @@ module.exports = (app, mydata, socketIO) => {
                 callback(err, tmpFilename);
               });
             }
-            else
+            else {
+              console.log('no jpg', msg);
               callback('err', null);
+            }
           },
           function readImage(tmpFilename, callback) {
             cv.readImage(tmpFilename, function(err, im) {
+              console.log('readImage');
               if (err)
                 callback(err,tmpFilename);
               if (im.width() < 1 || im.height < 1)
