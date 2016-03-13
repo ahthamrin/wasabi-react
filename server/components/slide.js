@@ -652,8 +652,8 @@ module.exports = (app, mydata, socketIO) => {
               
               mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
               console.log('force error', msg.jpg.length)
-              callback(1); // force error
-              return;
+              // callback(1); // force error
+              // return;
 
               var tmpFilename;
               try {
@@ -688,8 +688,8 @@ module.exports = (app, mydata, socketIO) => {
           },
           function detectObject(tmpFilename, im, callback) {
                console.log('detectObject',tmpFilename, im);
-               callback(1);
-               return;
+               // callback(1);
+               // return;
            im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
               console.log('faces',err, faces, msg);
               if (faces && faces.length) {
