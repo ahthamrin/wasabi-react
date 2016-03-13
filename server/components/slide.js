@@ -665,11 +665,13 @@ module.exports = (app, mydata, socketIO) => {
                 if (err)
                   tmpFilename = null;
                 callback(err, tmpFilename);
+                if (err) return;
               });
             }
             else {
               console.log('no jpg', msg);
               callback('err', null);
+              if (err) return;
             }
           },
           function readImage(tmpFilename, callback) {
@@ -677,6 +679,7 @@ module.exports = (app, mydata, socketIO) => {
               console.log('readImage');
               if (err)
                 callback(err,tmpFilename);
+              if (err) return;
               if (im.width() < 1 || im.height < 1)
                 callback(im, tmpFilename);
               callback(null, tmpFilename, im);
