@@ -539,7 +539,7 @@ module.exports = (app, mydata, socketIO) => {
     socket.mydata = socket.mydata || {};
 
     socket.on('disconnect', function() {
-      if (socket.mydata.user.role === 'lecturer') {
+      if (socket.mydata.user && socket.mydata.user.role === 'lecturer') {
         mydata.lecturerSocket = null;
       }
     })
@@ -555,7 +555,7 @@ module.exports = (app, mydata, socketIO) => {
         // socket.emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNo: msg.slideNo, username: socket.mydata.user.username});
       }
       mydata.db.insertOne({cmd: 'subSlide/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user});
-      if (socket.mydata.user.role === 'lecturer') {
+      if (socket.mydata.user && socket.mydata.user.role === 'lecturer') {
         mydata.lecturerSocket = socket.id;
       }
     });
