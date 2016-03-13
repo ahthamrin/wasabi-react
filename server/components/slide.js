@@ -538,6 +538,11 @@ module.exports = (app, mydata, socketIO) => {
   .on('connection', function(socket) {
     socket.mydata = socket.mydata || {};
 
+    socket.on('disconnect', function() {
+      if (socket.mydata.user.role === 'lecturer') {
+        mydata.lecturerSocket = null;
+      }
+    })
     socket.on('subSlide', function(msg) {
       socketIO.emit('subSlide', msg);
 
@@ -549,7 +554,10 @@ module.exports = (app, mydata, socketIO) => {
       if (socket.mydata.slideRoom && socket.mydata.user.role !== 'lecturer') {
         // socket.emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNo: msg.slideNo, username: socket.mydata.user.username});
       }
-      mydata.db.insertOne({cmd: 'subSlide/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user})
+      mydata.db.insertOne({cmd: 'subSlide/'+socket.mydata.slideDeckId, msg: msg, timestamp: (new Date()), user: socket.mydata.user});
+      if (socket.mydata.user.role === 'lecturer') {
+        mydata.lecturerSocket = socket.id;
+      }
     });
 
     socket.on('unsubSlide', function(msg) {
@@ -638,12 +646,18 @@ module.exports = (app, mydata, socketIO) => {
             if (msg.jpg.length) {
               // console.log(msg);
               // var tmpFilename = '/tmp/'+msg.user.username+msg.jpg.length+'.jpg';
+              if (socket.mydata.lecturerSocket)
+                socketIO.to(socket.mydata.lecturerSocket)
+                .emit('slideUpdate/'+socket.mydata.slideDeckId,{slideNoLecturer: msg.slideNoLocal, username: socket.mydata.user.username});
+              
+              mydata.db.insertOne({cmd: 'face-data', msg: msg, timestamp: (new Date()), user: socket.mydata.user});
+              callback(1); // force error
+
               var tmpFilename;
               try {
                 tmpFilename = '/tmp/'+( socket.mydata.user.username ? socket.mydata.user.username : 'user-') +msg.jpg.length+'.jpg';
               } catch (e) {
                 tmpFilename = '/tmp/image-' +msg.jpg.length+'.jpg';
-
               }
               var jpgData = new Buffer(msg.jpg.replace(/.+base64,/,''), 'base64');
               fs.writeFile(tmpFilename, jpgData, function(err) {

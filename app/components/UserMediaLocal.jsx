@@ -6,6 +6,7 @@ import server from '../libs/serverurls';
 import { hashHistory, Link } from 'react-router';
 import io from 'socket.io-client';
 import kurento from 'kurento-utils';
+import UserStore from '../stores/UserStore';
 
 export default class UserMediaLocal extends React.Component {
   constructor(props) {
@@ -15,8 +16,7 @@ export default class UserMediaLocal extends React.Component {
   componentDidMount() {
     var container = ReactDOM.findDOMNode(this);
 
-    server.rtcIO.emit('user',this.props.user);
-
+    this.user = UserStore.getState();
     this.canvas = ReactDOM.findDOMNode(this.refs.canvas);
     this.canvasCtx = this.canvas.getContext('2d');
 
@@ -36,7 +36,10 @@ export default class UserMediaLocal extends React.Component {
       this.webRtc.addIceCandidate(msg.candidate);
     });
 
-    this.getUserMedia({ audio: true, video: { width: 640, framerate: 15 }})
+    var mediaConstraints = { audio: true, video: { width: 240, framerate: 15 }};
+    if (this.user.role === 'lecturer')
+      mediaConstraints = { audio: true, video: { width: 640, framerate: 30 }};
+    this.getUserMedia(mediaConstraints)
     .then((stream) => {
       console.log('stream', stream);
       this.video.src = window.URL.createObjectURL(stream);
@@ -46,7 +49,7 @@ export default class UserMediaLocal extends React.Component {
 
       this.connectWebRtc()
       .then((sdpOffer) => {
-        server.rtcIO.emit('joinClass', {user:this.props.user, classId: this.props.classId, sdpOffer:sdpOffer});
+        server.rtcIO.emit('joinClass', {user:this.user, classId: this.props.classId, sdpOffer:sdpOffer});
       })
       .catch((error) => {
         console.log('connectWebRtc', error)
@@ -77,13 +80,13 @@ export default class UserMediaLocal extends React.Component {
   canvasRender = (timestamp) => {
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
     // this.canvas.clientWidth = this.canvas.width = this.video.videoWidth;
-    this.canvas.width = this.video.videoWidth/4;
-    this.canvas.height = this.video.videoHeight/4;
+    this.canvas.width = this.video.videoWidth/2;
+    this.canvas.height = this.video.videoHeight/2;
 
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
     if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 2 )) {
-      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.6)});
+      // server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.8)});
       this.canvasLastCaptureTimestamp = timestamp;
     }
 
@@ -94,7 +97,7 @@ export default class UserMediaLocal extends React.Component {
   connectWebRtc() {
     return new Promise((resolve, reject) => {
       var self = this;
-      if (this.props.user.role === 'lecturer')
+      if (this.user.role === 'lecturer')
         this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send'}, function(err) {
           if (err)
             console.log('error', err);
@@ -136,12 +139,12 @@ export default class UserMediaLocal extends React.Component {
   }
   render() {
       return (
-        <div className="row">
-          <canvas style={{width: '240px'}}  ref="canvas"/>
+        <div>
+          <canvas style={{width: '100%'}}  ref="canvas"/>
           <div style={{display:'none'}}>
-          <video style={{width: '240px'}}  controls muted ref="video"/>
+          <video style={{width: '100%'}}  controls muted ref="video"/>
           </div>
-          <video style={{width: '240px'}} ref="remoteVideo"/>
+          <video style={{width: '100%'}} ref="remoteVideo"/>
         </div>
       );
     // }

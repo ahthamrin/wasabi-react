@@ -32,7 +32,7 @@ export default class SlideShow extends React.Component {
     console.log('SlideShow', slideUrl);
     return (
       <div>
-        <div ref="slideImg" onClick={this.props.onSlideClick}><img src={slideUrl} className="slide-show" /></div>
+        <div ref="slideImg" onClick={this.props.onSlideClick}><img width={'100%'} src={slideUrl} className="slide-show" /></div>
         <div>
           <div className="btn-group btn-group-sm" role="group">
             <button type="button" className="btn btn-default" onClick={this.props.onFirst}>

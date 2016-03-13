@@ -14,20 +14,20 @@ export default class App extends React.Component {
 	}
 	render() {
 		if (this.state && this.state.loggedInUser.username) {
-			var ClassLink = <Link className="nav" role="button" to="/student/100">Attend Class</Link>;
+			var ClassLink = <Link to="/student/100">Attend Class</Link>;
 			var DashboardLink;
 			if (this.state.loggedInUser.role === 'lecturer') {
-				ClassLink = <Link className="nav" role="button" to="/lecturer/100">Lecture Class</Link>;
-				DashboardLink = <Link className="nav" role="button" to="/dashboard/100">Dashboard</Link>;
+				ClassLink = <Link  to="/lecturer/100">Lecture Class</Link>;
+				DashboardLink = <Link  to="/dashboard/100">Dashboard</Link>;
 			}
 			return(
 				<div className="container-fluid">
 					<div className="row">
-						<span className="strong">WASABI app</span>
-						<span className="strong">{ClassLink}</span>
-						<span className="strong">{DashboardLink}</span>
-						<span className="strong"><Link className="nav" role="button" to="/about">About</Link></span>
-						<span className="strong"><a href="#" type="nav" className="nav" onClick={this.logout} >Logout</a></span>
+						WASABI App |
+						{ClassLink} |
+						{DashboardLink} |
+						<Link  to="/about">About</Link> |
+						<a href="#" onClick={this.logout} >Logout</a>
 					</div>
 							{this.props.children}
 				</div>

@@ -1,6 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Chart} from 'react-d3-core'
 // import {LineChart} from 'react-d3-basic'
 import ChartJS from 'react-chartjs'
 

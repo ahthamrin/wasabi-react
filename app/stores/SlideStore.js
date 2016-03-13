@@ -59,6 +59,9 @@ class SlideStore {
   server.slideIO.on('pushQuizQuestion', ({question}) => {
     var quiz = {quizStat: true, question: question}
     this.setState(quiz);
+    window.setTimeout(() => {
+      this.setState({quizStat: false});
+    }, 5000);
   });
    server.slideIO.on('pushQuizAnswer', ({username, answer}) => {
     var quizAnswer = {answStat: true, username: username, answer: answer}

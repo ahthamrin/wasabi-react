@@ -48,13 +48,17 @@ export default class Student extends React.Component {
     console.log('changeSlideStore');
 //================================================================================>> This is Changed
   if (state.quizStat === true) {
+    console.log('incoming quiz', state.quizStat);
     //var question = {this.state.question}
     var quizAnswer = prompt(state.question);
         var quizQA = {question: state.question, answer: quizAnswer}
-        this.setState(quizQA);
+        console.log('answer', quizAnswer);
+        // this.setState(quizQA);
       server.slideIO.emit('pushQuizAnswer', {username: this.state.user.username, answer: quizAnswer});
     // this.setState({quizStat: false});
     }
+  if (state.answer)
+    return;
 //================================================================================>
 
     this.setState(state);
@@ -62,27 +66,34 @@ export default class Student extends React.Component {
   render() {
     return (
       <div className="row">
+      <div className="col-xs-12 col-md-9">
         <AltContainer
           stores={{slides: SlideStore}}
         >
           <SlideShow
+            onSlideClick={this.handleSlideClick}
             onFirst={this.handleFirst}
             onPrev={this.handlePrev}
             onNext={this.handleNext}
             onLast={this.handleLast} />
         </AltContainer>
-          <Alert clickAlert={this.handleAlertButton}/>
+      </div>
+      <div className="col-xs-12 col-md-3">
+        <div className="row">
+        <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={true}/>
+  <div class="clearfix hidden-md-block visible-md-block"></div>
         <AltContainer
           stores={{stores:QuestionStore}}
 
           inject={{
-            user: this.state.user
+            user: this.state.user,
           }}
         >
-          <Question
+          <Question clickAlert={this.handleAlertButton}
           />
         </AltContainer>
-        <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={true}/>
+        </div>
+        </div>
       </div>
     );
   }
@@ -112,6 +123,9 @@ export default class Student extends React.Component {
     console.log('alert teacher');
   }
 
+  handleSlideClick = (event) => {
+    console.log('click',event);
+  }
   handleFirst = (event) => {
     if (this.state.slideNoLocal > 0 ) {
       SlideActions.changeSlideLocal({slideNoLocal: 0});

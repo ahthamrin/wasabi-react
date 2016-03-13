@@ -52,7 +52,6 @@
     "react-chartjs": "^0.7.3",
     "react-dom": "^0.14.0",
     "react-router": "^2.0.0",
-    "simplewebrtc": "^2.1.1",
     "socket.io-client": "^1.4.5",
     "uuid": "^2.0.1"
   }

@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import server from '../../libs/serverurls'
 import QuestionActions from '../../actions/QuestionActions';
 import QuestionLog from './QuestionLog.jsx';
+import Alert from '../Alert.jsx';
 
 export default class Question extends React.Component {
 	constructor(props) {
@@ -17,14 +18,18 @@ export default class Question extends React.Component {
 			<div>
 				<QuestionLog
 					questions={this.props.stores.questions}/>
-				<textarea rows="2" cols="50" onChange={this.handleInputChange}>
+				<div>
+				<textarea rows="2" width="100%" onChange={this.handleInputChange}>
 				</textarea>
+				</div>
 				<button 
 					className="btn btn-primary"
 				  onClick={this.handleSend} >
 				  <span className="glyphicon glyphicon-ok"></span>
 				  Send
 				</button>
+				<Alert clickAlert={this.props.clickAlert}/>
+
 			</div>
 		)
 	}

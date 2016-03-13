@@ -44,6 +44,7 @@ export default class Lecturer extends React.Component {
 
   }
   componentDidMount() {
+
     var userData = UserStore.getState();
     var loggedInUser = userData.loggedInUser;
     this.setState({user: userData.loggedInUser});
@@ -101,6 +102,7 @@ export default class Lecturer extends React.Component {
 
     return (
       <div className="row">
+      <div className="col-xs-12 col-md-9">
         <AltContainer
           stores={{stores:QuestionStore}}
 
@@ -126,6 +128,9 @@ export default class Lecturer extends React.Component {
                     currentNoteValue={this.state.currentNoteValue}
                     saveLectureNote={this.handleSaveLectureNoteClick}
                     changeLectureNote={this.handleChangeLectureNoteChange}/>
+      </div>
+      <div className="col-xs-12 col-md-3">
+        <div className="row">
                     
       <Quiz quizButton
       quizHandleQuestion = {this.handleQuestion}
@@ -138,7 +143,9 @@ export default class Lecturer extends React.Component {
 
 
         <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={false}/>
-      </div>
+          </div>
+        </div>
+        </div>
     );
   }
         // {this.state.view.showModal ? 
@@ -222,9 +229,9 @@ export default class Lecturer extends React.Component {
   handleQuestion = (event) => {
     var questionTxt = prompt("Input the Question."); 
     if (questionTxt !== null){
-      this.setState(
-      {quizStat: true, question: questionTxt}
-      );
+      // this.setState(
+      // {quizStat: true, question: questionTxt}
+      // );
       server.slideIO.emit('pushQuizQuestion', {question: questionTxt});
 //      this.setState({quizStat: false});
 //      SlideStore.send('pushQuizQuestion',{question: this.state.question});

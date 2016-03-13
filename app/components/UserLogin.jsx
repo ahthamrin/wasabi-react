@@ -10,6 +10,7 @@ export default class UserLogin extends React.Component {
 
     this.state = UserStore.getState();
     this.state.swipe = 0;
+    this.state.userAgent = navigator.userAgent;
   }
   componentDidMount() {
     UserStore.listen(this.storeChanged);
