@@ -43,7 +43,7 @@ export default class UserMediaLocal extends React.Component {
     .then((stream) => {
       console.log('stream', stream);
       this.video.src = window.URL.createObjectURL(stream);
-      this.video.muted = true;
+      this.video.muted = false;
       this.video.onloadedmetadata = this.handlePlayUserMedia;
       this.mediaStreamLocal = stream;
 
