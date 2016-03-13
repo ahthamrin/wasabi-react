@@ -132,14 +132,6 @@ export default class Lecturer extends React.Component {
       <div className="col-xs-12 col-md-3">
         <div className="row">
                     
-      <Quiz quizButton
-      quizHandleQuestion = {this.handleQuestion}
-      text = {showQuestion}
-      questionShow = {this.state.question}
-//      answerShow = {username: {this.state.username}, answer: {this.state.answer}}
-//      {showReset}
-      quizButtonReset
-      quizResetQuestion = {this.resetQuestion}/>
 
 
         <LocalVideo classId={this.props.params.deckId} user={this.state.user} recv={false}/>
@@ -148,6 +140,15 @@ export default class Lecturer extends React.Component {
         </div>
     );
   }
+//       <Quiz quizButton
+//       quizHandleQuestion = {this.handleQuestion}
+//       text = {showQuestion}
+//       questionShow = {this.state.question}
+// //      answerShow = {username: {this.state.username}, answer: {this.state.answer}}
+// //      {showReset}
+//       quizButtonReset
+//       quizResetQuestion = {this.resetQuestion}/>
+
         // {this.state.view.showModal ? 
 
         //   <QuestionModal questions={this.state.questions} 
