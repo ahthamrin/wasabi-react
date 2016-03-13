@@ -697,11 +697,13 @@ module.exports = (app, mydata, socketIO) => {
             });
           }
         ], function(err, result) {
+          if (err)
+            console.log('face error', err, result);
           if (result) {
-            // fs.unlink(result, function(err) {
-            //   if (err)
-            //     console.log('unlink err', err, result);
-            // })
+            fs.unlink(result, function(err) {
+              if (err)
+                console.log('unlink err', err, result);
+            })
           }
           msg.jpg = msg.jpg.length;
           // console.log('receive vid capture', msg);
