@@ -675,8 +675,8 @@ module.exports = (app, mydata, socketIO) => {
             }
           },
           function readImage(tmpFilename, callback) {
+              console.log('readImage',tmpFilename);
             cv.readImage(tmpFilename, function(err, im) {
-              console.log('readImage');
               if (err)
                 callback(err,tmpFilename);
               if (err) return;
@@ -686,7 +686,8 @@ module.exports = (app, mydata, socketIO) => {
             });
           },
           function detectObject(tmpFilename, im, callback) {
-            im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
+               console.log('detectObject',tmpFilename, im);
+           im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
               console.log('faces',err, faces, msg);
               if (faces && faces.length) {
                 msg.faces = faces;
