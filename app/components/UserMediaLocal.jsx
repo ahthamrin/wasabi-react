@@ -59,10 +59,10 @@ export default class UserMediaLocal extends React.Component {
       console.log('userMedia',error);
     });
   }
-  getUserMedia() {
+  getUserMedia(constraints) {
     return new Promise((resolve, reject) => {
       navigator.getUserMedia(
-        rtc.userMediaVideoOnly,
+        constraints,
         (stream) => {
           resolve(stream);
         },
@@ -141,7 +141,7 @@ export default class UserMediaLocal extends React.Component {
       return (
         <div>
           <canvas style={{width: '100%'}}  ref="canvas"/>
-          <div style={{display:'none'}}>
+          <div style={{display:'block'}}>
           <video style={{width: '100%'}}  controls muted ref="video"/>
           </div>
           <video style={{width: '100%'}} ref="remoteVideo"/>
