@@ -45,7 +45,7 @@ module.exports = (app, mydata, socketIO) => {
         },
         function(kc, cb) { //media pipeline
           if (rtcData[msg.classId].pipeline)
-            cb(rtcData[msg.classId].pipeline)
+            cb(null, rtcData[msg.classId].pipeline)
           else
             kc.create('MediaPipeline', function(err, pipeline) {
               if (err) {
