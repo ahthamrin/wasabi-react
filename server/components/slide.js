@@ -681,7 +681,7 @@ module.exports = (app, mydata, socketIO) => {
           },
           function detectObject(tmpFilename, im, callback) {
             im.detectObject(cv.FACE_CASCADE, {}, function(err, faces) {
-              // console.log('faces',faces);
+              console.log('faces',err, faces, msg);
               if (faces && faces.length) {
                 msg.faces = faces;
                 msg.jpg = msg.jpg.length;
