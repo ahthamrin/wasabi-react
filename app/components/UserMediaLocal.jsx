@@ -85,7 +85,7 @@ export default class UserMediaLocal extends React.Component {
 
     this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
-    if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 2 )) {
+    if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 400 )) {
       console.log(timestamp);
       server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)});
       this.canvasLastCaptureTimestamp = timestamp;
