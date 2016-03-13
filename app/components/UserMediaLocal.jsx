@@ -87,7 +87,7 @@ export default class UserMediaLocal extends React.Component {
 
     if (this.props.recv && (timestamp - this.canvasLastCaptureTimestamp > 400 )) {
       // console.log(timestamp);
-      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.7)});
+      server.slideIO.emit('class/img',{user:this.props.user, jpg:this.canvas.toDataURL('image/jpeg', 0.6)});
       this.canvasLastCaptureTimestamp = timestamp;
     }
 
