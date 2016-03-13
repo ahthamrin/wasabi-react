@@ -16,7 +16,7 @@ export default class UserMediaLocal extends React.Component {
   componentDidMount() {
     var container = ReactDOM.findDOMNode(this);
 
-    this.user = UserStore.getState();
+    this.user = UserStore.getState().loggedInUser;
     this.canvas = ReactDOM.findDOMNode(this.refs.canvas);
     this.canvasCtx = this.canvas.getContext('2d');
 
