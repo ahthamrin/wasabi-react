@@ -98,7 +98,7 @@ export default class UserMediaLocal extends React.Component {
     return new Promise((resolve, reject) => {
       var self = this;
       if (this.user.role === 'lecturer')
-        this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send'}, function(err) {
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, audioStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send'}, function(err) {
           if (err)
             console.log('error', err);
           this.generateOffer(function(err, offerSdp){
