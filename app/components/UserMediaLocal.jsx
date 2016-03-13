@@ -141,7 +141,7 @@ export default class UserMediaLocal extends React.Component {
       return (
         <div>
           <canvas style={{width: '100%'}}  ref="canvas"/>
-          <div style={{display:'block'}}>
+          <div style={{display:'none'}}>
           <video style={{width: '100%'}}  controls muted ref="video"/>
           </div>
           <video style={{width: '100%'}} ref="remoteVideo"/>
