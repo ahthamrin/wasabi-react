@@ -110,7 +110,7 @@ export default class UserMediaLocal extends React.Component {
           });
         });
       else
-        this.webRtc = kurento.WebRtcPeer.WebRtcPeerRecvonly({remoteVideo: this.remoteVideo, onicecandidate: this.onIceCandidate, mode: 'recv'}, function(err) {
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerRecvonly({remoteVideo: this.remoteVideo, onicecandidate: this.onIceCandidate, mode: 'recv', configuration:{iceServers:[{url:'stun:stun.1.google.com:19302'}]}}, function(err) {
           if (err)
             console.log('error', err);
           this.generateOffer(function(err, offerSdp){
