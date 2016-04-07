@@ -1,0 +1,23 @@
+{
+  "name": "hapi-server",
+  "version": "0.1.0",
+  "description": "server for wasabi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Achmad Husni Thamrin",
+  "license": "MIT",
+  "dependencies": {
+    "bell": "^7.3.0",
+    "hapi": "^13.2.2",
+    "hapi-auth-cookie": "^6.1.1",
+    "hapi-io": "0.0.11",
+    "hapi-waterline": "^0.1.2",
+    "ims-lti": "^3.0.2",
+    "inert": "^3.2.0",
+    "kerberos": "0.0.19",
+    "sails-mongo": "^0.12.0",
+    "socket.io-client": "^1.4.5"
+  }
+}

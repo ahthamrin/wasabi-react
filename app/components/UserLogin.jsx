@@ -8,31 +8,21 @@ export default class UserLogin extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = UserStore.getState();
+    this.state = {};//Object.assign({}, UserStore.getState());
     this.state.swipe = 0;
     this.state.userAgent = navigator.userAgent;
+    this.state.loggedInUser = {};
   }
   componentDidMount() {
-    UserStore.listen(this.storeChanged);
 
-/*    // using jQuery-touchswipe plugin
-    var container = ReactDOM.findDOMNode(this);
-    $(container).swipe({
-      tap : () => {
-        this.handleSwipe('tap',arguments);
-      }
-    })
-    .swipe({
-      swipe: (event, direction, distance, duration, fingerCount, fingerData) => {
-        this.handleSwipe('swipe '+direction+' '+fingerCount, arguments); 
-      }
-    });
-*/  }
+    UserStore.listen(this.storeChanged);
+    this.storeChanged(UserStore.getState());
+  }
   componentWillUnmount() {
     UserStore.unlisten(this.storeChanged);
   }
   storeChanged = (state) => {
-    this.setState(state);
+    this.setState({loggedInUser: state.loggedInUser, loginError: state.loginError});
 
     // if login was clicked and no error, redirect to class page
     if (state.loggedInUser.username) {
@@ -40,14 +30,18 @@ export default class UserLogin extends React.Component {
     }
   }
   render() {
+    if (!this.state.loggedInUser.username)
       return (
-        <div className="row">
-          <h3>WASABI Login</h3>
-          <div><label ref="labelUsername">Username:</label> <input type="text" className="input" onBlur={this.handleInputUser} /></div>
-          <div><label>Password:</label> <input type="password" className="input" onBlur={this.handleInputPasswd} /></div>
-          <div><button type="button" className="btn btn-default add-note" onClick={this.userLogin}>
-          Login
-          </button></div>
+        <div className="container">
+          <form className="form-signin">
+            <h2 className="form-signin-heading">WASABI: Please sign in</h2>
+            <label htmlFor="input-Email" className="sr-only">Email address</label>
+            <input ref="inputUser" type="text" id="input-Email" className="form-control" placeholder="Username" required autofocus  />
+            <label htmlFor="input0Password" className="sr-only">Password</label>
+            <input ref="inputPasswd" type="password" id="input-Password" className="form-control" placeholder="Password" required  />
+            <button className="btn btn-lg btn-primary btn-block" type="button" onClick={this.userLogin}>Sign in</button>
+          </form>
+
           <div>
           {(() => {
               if (this.state.loginError) {
@@ -55,11 +49,18 @@ export default class UserLogin extends React.Component {
               }
           })()}
           </div>
-          <div id="mod">{this.state.time}</div>
         </div>
       );
-    // }
+  else
+    return(
+      <div className="container">
+
+      <h2>Welcome to WASABI App</h2>
+
+      </div>
+      );
   }
+
   handleInputUser = (event) => {
     this.setState({inputUser:event.target.value});
     // console.log('handleInputUser',this.state);
@@ -73,7 +74,11 @@ export default class UserLogin extends React.Component {
     this.setState({time: event+' '+(new Date()).toString()});
   }
   userLogin = (event) => {
-    // console.log('userLogin',this.state);
-    UserActions.login(this.state);
+    this.inputUser = ReactDOM.findDOMNode(this.refs.inputUser);
+    this.inputPasswd = ReactDOM.findDOMNode(this.refs.inputPasswd);
+    console.log('userLogin',this.inputUser, this.inputPasswd);
+    var state = {inputUser: this.inputUser.value, inputPasswd: this.inputPasswd.value, timestamp: (new Date()).valueOf() };
+    UserActions.login(state);
+    return false;
   }
 }

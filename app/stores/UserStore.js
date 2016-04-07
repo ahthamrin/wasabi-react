@@ -9,35 +9,19 @@ class UserStore {
 
     this.loggedInUser = {};
     this.loginError = null;
-  }
 
-  send(cmd,msg) {
-    server.userIO.emit(cmd,msg);
-  }
-
-  fetch(cmd) {
-    return new Promise((resolve, reject) => {
-      server.userIO.once(cmd, (msg) => {
-        // console.log('UserStore fetch', cmd, msg);
-        resolve(msg);
-      });
-    });
-  }
-
-  login({inputUser, inputPasswd}) {
-    this.fetch('login')
-    .then((msg) => {
+    server.userIO.on('login', (msg) => {
       this.setState({
         loggedInUser: {username: msg.username, role: msg.role},
         loginError: msg.error
       });
-      // console.log('UserStore login',msg, this.state);
     });
-    this.send('login',{inputUser,inputPasswd});
-
+  }
+  login({inputUser, inputPasswd}) {
+    server.emit(server.userIO, {cmd:'login',msg: {inputUser,inputPasswd}});
   }
   logout() {
-    this.fetch('logout',this.loggedInUser.username);
+    server.emit(server.userIO, {cmd:'logout',msg:{}});
     this.setState({loggedInUser:{}});
   }
 }

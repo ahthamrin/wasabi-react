@@ -1,9 +1,32 @@
 import io from 'socket.io-client';
 
+var hostname = window.location.hostname;
+var portNo = window.location.port;
+
+// var ioHostUri = '//'+hostname+':3000/';
+// var httpHostUri = '//'+hostname+':3000/';
+var ioHostUri = '//'+hostname+':'+portNo+'/';
+var httpHostUri = '//'+hostname+':'+portNo+'/';
+
+var _liveClassIO;
+
 export default {
 
-	slideIO: 
-	io.connect('wss://lo.jaringan.info:3000/slide',
+  liveClassIO:
+  io.connect(ioHostUri+'liveclass',
+  {transports: [
+    'websocket', 
+    'polling',
+    'xhr-polling', 
+    'jsonp-polling', 
+    'flashsocket', 
+    'htmlfile'
+      ],
+      reconnection: false
+  })
+  ,
+  slideIO: 
+  io.connect(ioHostUri+'slide',
   {transports: [
     'websocket', 
     'polling',
@@ -13,8 +36,34 @@ export default {
     'htmlfile'
   ]})
   ,
-	userIO:
-	io.connect('wss://lo.jaringan.info:3000/user',
+  userIO:
+  io.connect(ioHostUri+'user',
+    { transports: [
+      'websocket', 
+      'polling',
+      'xhr-polling', 
+      'jsonp-polling', 
+      'flashsocket', 
+      'htmlfile'
+      ],
+      reconnection: false
+  })
+  ,
+  rtcIO:
+  io.connect(ioHostUri+'rtc',
+    { transports: [
+      'websocket', 
+      'polling',
+      'xhr-polling', 
+      'jsonp-polling', 
+      'flashsocket', 
+      'htmlfile'
+      ],
+      reconnection: false
+  })
+  ,
+  logIO:
+  io.connect(ioHostUri+'log',
   {transports: [
     'websocket', 
     'polling',
@@ -24,18 +73,8 @@ export default {
     'htmlfile'
   ]})
   ,
-	rtcIO:
-	io.connect('wss://lo.jaringan.info:3000/rtc',
-  {transports: [
-    'websocket', 
-    'polling',
-    'xhr-polling', 
-    'jsonp-polling', 
-    'flashsocket', 
-    'htmlfile'
-  ]})
-  ,
-  slidesUrl: 'https://lo.jaringan.info:3000/slides/',
+  slidesUrl: httpHostUri+'slides/',
+  slideDeckUrl: httpHostUri+'slide-deck/',
   emit: function (thisIO, {cmd,msg}) {
     thisIO.emit(cmd,msg);
   }

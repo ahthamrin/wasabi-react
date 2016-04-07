@@ -1,0 +1,15 @@
+---
+# You can use comments here 
+bootstrapVersion: 4
+
+useFlexbox: true
+ 
+styleLoaders:
+  - style
+  - css
+  - postcss
+  - sass
+ 
+styles: true
+ 
+scripts: true

@@ -32,7 +32,7 @@ export default class UserMediaLocal extends React.Component {
       }
     });
     server.rtcIO.on('iceCandidate', (msg) => {
-      console.log('iceCandidate', msg.candidate);
+      // console.log('iceCandidate', msg.candidate);
       this.webRtc.addIceCandidate(msg.candidate);
     });
 
@@ -99,7 +99,7 @@ export default class UserMediaLocal extends React.Component {
     return new Promise((resolve, reject) => {
       var self = this;
       if (this.user.role === 'lecturer')
-        this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, audioStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send', configuration:{iceServers:[{url:'stun:stun.1.google.com:19302'}]}}, function(err) {
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerSendonly({videoStream: this.mediaStreamLocal, audioStream: this.mediaStreamLocal, onicecandidate: this.onIceCandidate, mode: 'send', configuration: {iceServers:[{url:'stun:stun.1.google.com:19302'}]}}, function(err) {
           if (err)
             console.log('error', err);
           this.generateOffer(function(err, offerSdp){
@@ -110,7 +110,7 @@ export default class UserMediaLocal extends React.Component {
           });
         });
       else
-        this.webRtc = kurento.WebRtcPeer.WebRtcPeerRecvonly({remoteVideo: this.remoteVideo, onicecandidate: this.onIceCandidate, mode: 'recv', configuration:{iceServers:[{url:'stun:stun.1.google.com:19302'}]}}, function(err) {
+        this.webRtc = kurento.WebRtcPeer.WebRtcPeerRecvonly({remoteVideo: this.remoteVideo, onicecandidate: this.onIceCandidate, mode: 'recv', configuration: {iceServers:[{url:'stun:stun.1.google.com:19302'}]}}, function(err) {
           if (err)
             console.log('error', err);
           this.generateOffer(function(err, offerSdp){
@@ -124,7 +124,7 @@ export default class UserMediaLocal extends React.Component {
     })
   }
   onIceCandidate = (candidate) => {
-    console.log('local candidate', candidate);
+    // console.log('local candidate', candidate);
     server.rtcIO.emit('onIceCandidate', {candidate:candidate})
   }
   componentWillUnmount() {

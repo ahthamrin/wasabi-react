@@ -1,0 +1,23 @@
+{
+	Server:
+	{
+		port: 3000
+	}
+	Path:
+	{
+		build: build
+		slides: public/slides
+	}
+	Db:
+	{
+		hostname: localhost
+		port: 27017
+		name: eba
+	}
+	Kurento:
+	{
+		hostname: 203.178.143.217
+		port: 8888
+		path: kurento
+	}
+}

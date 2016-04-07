@@ -1,5 +1,5 @@
 const rtc = {
-	rtcConfig : {
+	configuration : {
 		iceServers: [ {urls: "stun:stun.l.google.com:19302"} ]
 	},
 	sdpConstraintsReceive : {
@@ -14,10 +14,13 @@ const rtc = {
       'OfferToReceiveVideo':false
     }
 	},
-	userMediaAudio : {video: false, audio: true},
-	userMediaVideo : {video: true, audio: true},
-	userMediaVideoOnly : {video: true, audio: false},
-	userMediaScreen : {video: {mandatory: {chromeMediaSource: 'desktop'}}}
+	audioOnly : {video: false, audio: true},
+	videoOnly : {video: true, audio: false},
+	videoHD: function (a = true ) {return  { audio: a, video: {mandatory: { minWidth: 1280, maxWidth: 1280 }}} },
+	video640: function (a = true ) {return  { audio: a, video: {mandatory: { maxWidth: 640 }}} },
+	video320: function (a = true ) {return  { audio: a, video: {mandatory:{ maxHeight: 240, maxWidth: 320 }}} },
+	video240: function (a = true ) {return  { audio: a, video: {mandatory: { maxHeight: 180, maxWidth: 240 }}} },
+	desktop : {video: {mandatory: {chromeMediaSource: 'desktop'}}}
 }
 
 if (window) {

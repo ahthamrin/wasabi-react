@@ -52,28 +52,33 @@ module.exports = (app, mydata, socketIO) => {
 
   socketIO
   .on('connection', function(socket) {
-    console.log('connected', socket.id);
+    console.log('connected', socket.id, socket.handshake.session);
+
+    if (socket.handshake.session.user) {
+      socket.emit('login', _.pick(socket.handshake.session.user, ['username', 'role', 'error']));
+    }
 
     socket.on('login', function(user) {
       var thisUser = User.login(user.inputUser, user.inputPasswd);
       if (!thisUser.error) {
-          thisUser.socket = socket;
           loggedInUsers[thisUser.username] = thisUser;
+          socket.handshake.session.user = thisUser;
       }
-      socketIO.emit('login', _.pick(thisUser, ['username', 'role', 'error']));
+      socket.emit('login', _.pick(thisUser, ['username', 'role', 'error']));
       mydata.db.insertOne({cmd: 'login', user, timestamp: (new Date())});
 
       console.log('login', user);
     });
 
     socket.on('logout', function(username) {
+      delete socket.handshake.session.user;
       User.logout(username);
     });
 
     socket.on('update', function(msg) {
       msg.timestamp = (new Date()).toISOString();
       console.log(msg);
-      socketIO.emit('update', msg);
+      socket.emit('update', msg);
     });
   });
 
